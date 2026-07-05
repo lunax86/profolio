@@ -24,5 +24,7 @@ declare(strict_types=1);
 </div>
 <div class="card">
     <p>Obsah webu upravíte v sekci <a href="/admin/settings">Nastavení</a> (titulek, slogan, kontaktní údaje, úvodní fotka).</p>
+    <?php if (\App\Core\Config::get('APP_ENV') !== 'production'): ?>
     <p>API dokumentace: <a href="/swagger" target="_blank">/swagger</a></p>
+    <?php endif; ?>
 </div>

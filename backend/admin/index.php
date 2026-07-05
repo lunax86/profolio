@@ -119,9 +119,7 @@ switch ($action) {
         $repo = new InquiryRepository();
         if ($method === 'POST') {
             $verifyCsrf();
-            if ($post('_action') === 'delete') {
-                $repo->delete((int) $post('id'));
-            } elseif ($post('_action') === 'read') {
+            if ($post('_action') === 'read') {
                 $repo->markRead((int) $post('id'));
             }
             $redirect('inquiries');
