@@ -44,8 +44,9 @@ if ($request->path === '/admin' || str_starts_with($request->path, '/admin/')) {
     exit;
 }
 
-// --- Swagger UI + OpenAPI JSON ---
-if ($request->path === '/api/openapi.json') {
+// --- Swagger UI + OpenAPI JSON (jen mimo produkci) ---
+$swaggerEnabled = Config::get('APP_ENV') !== 'production';
+if ($swaggerEnabled && $request->path === '/api/openapi.json') {
     // swagger-php hlásí deprecations na PHP 8.5 (na cílovém 8.2 nevzniká) - ztlumíme je.
     $previous = error_reporting(error_reporting() & ~E_DEPRECATED);
     $json = \OpenApi\Generator::scan([dirname(__DIR__) . '/src/Controller'])->toJson();
@@ -54,7 +55,7 @@ if ($request->path === '/api/openapi.json') {
     echo $json;
     exit;
 }
-if ($request->path === '/swagger') {
+if ($swaggerEnabled && $request->path === '/swagger') {
     require dirname(__DIR__) . '/public/swagger.php';
     exit;
 }

@@ -14,7 +14,7 @@ use App\Support\Validator;
 use OpenApi\Attributes as OA;
 
 #[OA\Info(version: '1.0.0', title: 'Firemní web API', description: 'Veřejné a admin rozhraní pro firemní web.')]
-#[OA\Server(url: 'http://localhost:8000', description: 'Lokální vývoj')]
+#[OA\Server(url: '/', description: 'Tento server')]
 final class PublicController
 {
     #[OA\Get(
