@@ -1,0 +1,9 @@
+# OS
+.DS_Store
+
+# Editor / local tooling
+.claude/settings.local.json
+*.log
+
+# Poznámka: backend/ a frontend/ mají vlastní .gitignore
+# (vendor, node_modules, dist, .env, database.sqlite, uploads…)

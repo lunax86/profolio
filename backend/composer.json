@@ -1,0 +1,38 @@
+{
+    "name": "profolio/backend",
+    "description": "Firemní web: API a administrace (PHP 8.2, OOP)",
+    "type": "project",
+    "require": {
+        "php": "^8.2",
+        "ext-pdo": "*",
+        "ext-pdo_sqlite": "*",
+        "ext-json": "*",
+        "zircote/swagger-php": "^4.10",
+        "vlucas/phpdotenv": "^5.6"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "8.2.0"
+        },
+        "sort-packages": true
+    },
+    "scripts": {
+        "migrate": "@php database/migrate.php",
+        "seed": "@php database/seed.php",
+        "swagger": "@php bin/swagger.php",
+        "serve": "@php -S localhost:8000 -t public"
+    }
+}
