@@ -67,4 +67,9 @@ final class Request
     {
         return (string) ($this->server['REMOTE_ADDR'] ?? '');
     }
+
+    public function userAgent(): string
+    {
+        return (string) ($this->server['HTTP_USER_AGENT'] ?? '');
+    }
 }

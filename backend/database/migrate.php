@@ -60,6 +60,16 @@ $pdo->exec(<<<'SQL'
     );
 SQL);
 
+$pdo->exec(<<<'SQL'
+    CREATE TABLE IF NOT EXISTS page_views (
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        day          TEXT NOT NULL,
+        visitor_hash TEXT NOT NULL,
+        created_at   TEXT NOT NULL DEFAULT (datetime('now')),
+        UNIQUE (day, visitor_hash)
+    );
+SQL);
+
 // Idempotentní doplnění nových sloupců u již existujících databází.
 $inquiryColumns = array_column($pdo->query('PRAGMA table_info(inquiries)')->fetchAll(), 'name');
 if (!in_array('is_archived', $inquiryColumns, true)) {

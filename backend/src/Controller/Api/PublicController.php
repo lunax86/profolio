@@ -8,6 +8,7 @@ use App\Core\Config;
 use App\Core\Request;
 use App\Core\Response;
 use App\Repository\InquiryRepository;
+use App\Repository\PageViewRepository;
 use App\Repository\PortfolioRepository;
 use App\Repository\ServiceRepository;
 use App\Repository\SettingRepository;
@@ -109,5 +110,24 @@ final class PublicController
 
         $id = (new InquiryRepository())->create($data);
         Response::json(['id' => $id, 'message' => 'Děkujeme, ozveme se vám.'], 201);
+    }
+
+    #[OA\Post(
+        path: '/api/hit',
+        summary: 'Anonymní záznam návštěvy (počítadlo návštěvnosti)',
+        tags: ['Veřejné'],
+        responses: [new OA\Response(response: 204, description: 'Zaznamenáno')]
+    )]
+    public function hit(Request $request): void
+    {
+        $day = (new \DateTimeImmutable('now', new \DateTimeZone('Europe/Prague')))->format('Y-m-d');
+
+        // Anonymní otisk návštěvníka: hash z IP + user-agent, solený tajným klíčem a dnem.
+        // Sůl obsahuje den → hash se denně mění a IP se nikde neukládá v čitelné podobě.
+        $salt = (string) Config::get('JWT_SECRET', 'salt');
+        $hash = hash('sha256', $request->clientIp() . '|' . $request->userAgent() . '|' . $day . '|' . $salt);
+
+        (new PageViewRepository())->record($day, $hash);
+        Response::noContent();
     }
 }

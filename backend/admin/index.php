@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Repository\AdminUserRepository;
 use App\Repository\InquiryRepository;
+use App\Repository\PageViewRepository;
 use App\Repository\PortfolioRepository;
 use App\Repository\ServiceRepository;
 use App\Repository\SettingRepository;
@@ -145,5 +146,6 @@ switch ($action) {
             'servicesCount' => count((new ServiceRepository())->all()),
             'portfolioCount' => count((new PortfolioRepository())->all()),
             'unread' => (new InquiryRepository())->unreadCount(),
+            'views' => (new PageViewRepository())->stats(),
         ], 'Přehled');
 }

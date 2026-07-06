@@ -49,6 +49,10 @@ export const api = {
   settings: () => get<SiteSettings>('/api/settings'),
   services: () => get<Service[]>('/api/services'),
   portfolio: () => get<PortfolioItem[]>('/api/portfolio'),
+  /** Anonymní záznam návštěvy – bez čekání na odpověď, chyby ignorujeme. */
+  hit: (): void => {
+    void fetch('/api/hit', { method: 'POST' }).catch(() => {})
+  },
   async sendInquiry(payload: InquiryPayload): Promise<{ message: string }> {
     const res = await fetch('/api/inquiries', {
       method: 'POST',

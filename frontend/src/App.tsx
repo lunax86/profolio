@@ -14,6 +14,14 @@ export default function App() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // návštěvnost – jednou za relaci prohlížeče
+    if (!sessionStorage.getItem('hit')) {
+      sessionStorage.setItem('hit', '1')
+      api.hit()
+    }
+  }, [])
+
+  useEffect(() => {
     Promise.all([api.settings(), api.services(), api.portfolio()])
       .then(([s, sv, p]) => {
         setSettings(s)
