@@ -29,9 +29,20 @@ $e = static fn (?string $v): string => htmlspecialchars((string) $v, ENT_QUOTES,
         a { color: var(--brand); text-decoration: none; }
         .topbar { background: var(--bg); color: var(--text); padding: 0 1.5rem; display:flex; align-items:center; gap:1.5rem; height:56px; }
         .topbar .brand { font-weight:700; }
-        .topbar nav { display:flex; gap:1rem; flex:1; }
+        .topbar nav { display:flex; gap:1rem; flex:1; align-items:center; }
         .topbar nav a { color: var(--muted); padding: .35rem .1rem; border-bottom: 2px solid transparent; }
-        .topbar nav a.active, .topbar nav a:hover { color:#fff; border-color: var(--brand); }
+        .topbar nav a.active, .topbar nav a:hover { color:#fff; border-bottom-color: var(--brand); }
+        .topbar nav a.logout { margin-left:auto; color: var(--muted); border-bottom:0; }
+        .burger { display:none; margin-left:auto; cursor:pointer; color:#fff; font-size:1.5rem; line-height:1; padding:.25rem .5rem; user-select:none; }
+        @media (max-width: 640px) {
+            .topbar { flex-wrap:wrap; height:auto; min-height:56px; padding:.5rem 1rem; gap:.5rem; }
+            .burger { display:block; }
+            .topbar nav { display:none; flex-basis:100%; flex-direction:column; gap:0; }
+            .nav-toggle:checked ~ nav { display:flex; }
+            .topbar nav a { width:100%; padding:.7rem .25rem; border-bottom:1px solid var(--border); }
+            .topbar nav a.logout { margin-left:0; }
+            .card { overflow-x:auto; }
+        }
         .wrap { max-width: 960px; margin: 2rem auto; padding: 0 1.5rem; }
         h1 { font-size: 1.5rem; margin-top: 0; }
         .card { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:1.25rem; margin-bottom:1.25rem; box-shadow:0 1px 2px rgba(0,0,0,.04); }
@@ -56,12 +67,14 @@ $e = static fn (?string $v): string => htmlspecialchars((string) $v, ENT_QUOTES,
 <?php if ($loggedIn): ?>
 <div class="topbar">
     <span class="brand">⚙ Administrace</span>
+    <input type="checkbox" id="navToggle" class="nav-toggle" hidden>
+    <label for="navToggle" class="burger" aria-label="Menu">☰</label>
     <nav>
         <?php foreach ($nav as $key => $label): ?>
             <a href="/admin/<?= $key ?>" class="<?= $current === $key ? 'active' : '' ?>"><?= $label ?></a>
         <?php endforeach; ?>
+        <a href="/admin/logout" class="logout">Odhlásit</a>
     </nav>
-    <a href="/admin/logout" style="color:#94a3b8">Odhlásit</a>
 </div>
 <?php endif; ?>
 <div class="wrap">
