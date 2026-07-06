@@ -33,6 +33,10 @@ export interface InquiryPayload {
   email: string
   phone?: string
   message?: string
+  /** honeypot – skryté pole, člověk ho nechá prázdné */
+  website?: string
+  /** time-trap – sekundy od načtení formuláře */
+  elapsed?: number
 }
 
 async function get<T>(path: string): Promise<T> {

@@ -4,3 +4,4 @@
 /database/database.sqlite
 /storage/uploads/*
 !/storage/uploads/.gitkeep
+/storage/ratelimit/

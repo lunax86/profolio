@@ -62,4 +62,9 @@ final class Request
 
         return null;
     }
+
+    public function clientIp(): string
+    {
+        return (string) ($this->server['REMOTE_ADDR'] ?? '');
+    }
 }

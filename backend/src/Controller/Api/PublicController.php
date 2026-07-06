@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Controller\Api;
 
+use App\Core\Config;
 use App\Core\Request;
 use App\Core\Response;
 use App\Repository\InquiryRepository;
 use App\Repository\PortfolioRepository;
 use App\Repository\ServiceRepository;
 use App\Repository\SettingRepository;
+use App\Support\RateLimiter;
 use App\Support\Validator;
 use OpenApi\Attributes as OA;
 
@@ -74,6 +76,25 @@ final class PublicController
     public function createInquiry(Request $request): void
     {
         $data = $request->all();
+
+        // Anti-spam 1: honeypot – skryté pole "website" musí zůstat prázdné.
+        // Anti-spam 2: time-trap – formulář odeslaný dřív než za 2 s je nejspíš bot.
+        // U obou se tváříme úspěšně, ale nic neuložíme (neprozrazujeme detekci).
+        $elapsed = (float) ($data['elapsed'] ?? 0);
+        if (trim((string) ($data['website'] ?? '')) !== '' || ($elapsed > 0 && $elapsed < 2)) {
+            Response::json(['message' => 'Děkujeme, ozveme se vám.'], 201);
+
+            return;
+        }
+
+        // Anti-spam 3: rate-limit podle IP (max 5 poptávek / 10 min).
+        $limiter = new RateLimiter(Config::basePath('/storage/ratelimit'));
+        if (!$limiter->allow('inquiry:' . $request->clientIp(), 5, 600)) {
+            Response::error('Příliš mnoho poptávek z této adresy. Zkuste to prosím za chvíli.', 429);
+
+            return;
+        }
+
         $validator = new Validator();
         if (!$validator->validate($data, [
             'name' => 'required|max:120',

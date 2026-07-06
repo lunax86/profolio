@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -13,6 +13,8 @@ const schema = z.object({
   email: z.string().email('Neplatný e-mail'),
   phone: z.string().optional(),
   message: z.string().optional(),
+  // honeypot – skryté pole; člověk ho nechá prázdné, bot ho vyplní
+  website: z.string().optional(),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -20,6 +22,7 @@ type FormValues = z.infer<typeof schema>
 export function InquiryForm() {
   const [sent, setSent] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
+  const mountedAt = useRef(Date.now())
   const {
     register,
     handleSubmit,
@@ -30,7 +33,10 @@ export function InquiryForm() {
   const onSubmit = async (values: FormValues) => {
     setServerError(null)
     try {
-      await api.sendInquiry(values)
+      await api.sendInquiry({
+        ...values,
+        elapsed: (Date.now() - mountedAt.current) / 1000,
+      })
       setSent(true)
       reset()
     } catch (e) {
@@ -72,6 +78,17 @@ export function InquiryForm() {
             </div>
           ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+              {/* honeypot – neviditelné pole; člověk ho nevidí, bot ho vyplní */}
+              <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
+                <label htmlFor="website">Nevyplňujte</label>
+                <input
+                  id="website"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  {...register('website')}
+                />
+              </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium">Jméno *</label>
                 <Input {...register('name')} placeholder="Jan Novák" />
