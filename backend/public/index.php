@@ -60,6 +60,42 @@ if ($swaggerEnabled && $request->path === '/swagger') {
     exit;
 }
 
+// --- robots.txt ---
+if ($request->path === '/robots.txt') {
+    $base = rtrim((string) Config::get('APP_URL', ''), '/');
+    $allowIndex = ((new App\Repository\SettingRepository())->all()['seo_index'] ?? '1') !== '0';
+    header('Content-Type: text/plain; charset=utf-8');
+    echo $allowIndex
+        ? "User-agent: *\nAllow: /\n\nSitemap: {$base}/sitemap.xml\n"
+        : "User-agent: *\nDisallow: /\n";
+    exit;
+}
+
+// --- sitemap.xml ---
+if ($request->path === '/sitemap.xml') {
+    $base = rtrim((string) Config::get('APP_URL', ''), '/');
+    header('Content-Type: application/xml; charset=utf-8');
+    echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
+        . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n"
+        . "  <url><loc>{$base}/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>\n"
+        . '</urlset>' . "\n";
+    exit;
+}
+
+// --- SPA stránky se serverově vloženými SEO meta (vše mimo /api) ---
+if ($request->path !== '/api' && !str_starts_with($request->path, '/api/')) {
+    $shell = dirname(Config::basePath()) . '/frontend/dist/index.html';
+    if (is_file($shell)) {
+        $settings = (new App\Repository\SettingRepository())->all();
+        $base = (string) Config::get('APP_URL', '');
+        header('Content-Type: text/html; charset=utf-8');
+        echo App\Support\SeoRenderer::render((string) file_get_contents($shell), $settings, $base, $request->path);
+        exit;
+    }
+    Response::error('Not found', 404);
+    exit;
+}
+
 // --- REST API routy ---
 $router = new App\Core\Router();
 $public = new PublicController();
