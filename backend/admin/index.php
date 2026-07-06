@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Core\Config;
 use App\Repository\AdminUserRepository;
 use App\Repository\InquiryRepository;
 use App\Repository\PageViewRepository;
@@ -10,6 +11,7 @@ use App\Repository\ServiceRepository;
 use App\Repository\SettingRepository;
 use App\Support\Auth;
 use App\Support\Csrf;
+use App\Support\RateLimiter;
 use App\Support\Uploader;
 
 /*
@@ -44,18 +46,29 @@ $verifyCsrf = static function () use ($post): void {
 
 // --- Login / logout (bez přihlášení) ---
 if ($action === 'login') {
+    $limiter = new RateLimiter(Config::basePath('/storage/ratelimit'));
+    $loginKey = 'login:' . (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+    $lockedMsg = 'Příliš mnoho pokusů o přihlášení. Zkuste to prosím za 15 minut.';
+    $locked = $limiter->tooMany($loginKey, 5, 900); // max 5 neúspěchů / 15 min na IP
+
     if ($method === 'POST') {
         $verifyCsrf();
+        if ($locked) {
+            $render('login', ['error' => $lockedMsg], 'Přihlášení');
+
+            return;
+        }
         $user = (new AdminUserRepository())->findByEmail((string) $post('email'));
         if ($user && password_verify((string) $post('password'), $user['password_hash'])) {
             Auth::login($user);
             $redirect('dashboard');
         }
+        $limiter->record($loginKey, 900); // započítej neúspěšný pokus
         $render('login', ['error' => 'Neplatné přihlašovací údaje.'], 'Přihlášení');
 
         return;
     }
-    $render('login', ['error' => null], 'Přihlášení');
+    $render('login', ['error' => $locked ? $lockedMsg : null], 'Přihlášení');
 
     return;
 }
