@@ -111,6 +111,16 @@ switch ($action) {
             $verifyCsrf();
             $keys = ['site_title', 'hero_title', 'hero_slogan', 'hero_image', 'contact_email', 'contact_phone', 'contact_address', 'social_facebook', 'social_instagram', 'privacy_policy', 'seo_title', 'seo_description', 'seo_image', 'seo_index'];
             $repo->setMany(array_intersect_key($_POST, array_flip($keys)));
+
+            if ($post('favicon_remove')) {
+                $repo->setMany(['favicon_path' => '']);
+            } elseif (!empty($_FILES['favicon']['tmp_name'])) {
+                try {
+                    $repo->setMany(['favicon_path' => Uploader::store($_FILES['favicon'])]);
+                } catch (\RuntimeException $e) {
+                    $redirect('settings?err=' . rawurlencode($e->getMessage()));
+                }
+            }
             $redirect('settings');
         }
         $render('settings', ['settings' => $repo->all()], 'Nastavení');

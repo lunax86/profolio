@@ -9,7 +9,10 @@ $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'
 $val = static fn (string $k): string => htmlspecialchars((string) ($settings[$k] ?? ''), ENT_QUOTES, 'UTF-8');
 ?>
 <h1>Nastavení webu</h1>
-<form method="post" action="/admin/settings">
+<?php if (!empty($_GET['err'])): ?>
+<div class="alert"><?= $e($_GET['err']) ?></div>
+<?php endif; ?>
+<form method="post" action="/admin/settings" enctype="multipart/form-data">
     <?= Csrf::field() ?>
     <div class="card">
         <h2 style="margin-top:0;font-size:1.1rem;">Úvodní sekce (hero)</h2>
@@ -34,6 +37,24 @@ $val = static fn (string $k): string => htmlspecialchars((string) ($settings[$k]
         <input type="url" name="social_facebook" value="<?= $val('social_facebook') ?>">
         <label>Instagram</label>
         <input type="url" name="social_instagram" value="<?= $val('social_instagram') ?>">
+    </div>
+    <div class="card">
+        <h2 style="margin-top:0;font-size:1.1rem;">Ikona webu (favicon)</h2>
+        <p style="color:#64748b;font-size:.85rem;margin:.25rem 0 .5rem;">
+            Ikonka v záložce prohlížeče. Ideálně čtvercový PNG (např. 512×512). Prázdné = výchozí ikona.
+        </p>
+        <div style="display:flex;align-items:center;gap:1rem;">
+            <img src="<?= $val('favicon_path') ?: '/favicon.svg' ?>" alt="favicon" width="48" height="48"
+                 style="border:1px solid #e2e8f0;border-radius:8px;background:#fff;object-fit:contain;padding:4px;">
+            <div style="flex:1;">
+                <input type="file" name="favicon" accept="image/png,image/jpeg,image/webp">
+                <?php if ($val('favicon_path')): ?>
+                <label style="font-weight:400;margin-top:.5rem;display:flex;align-items:center;gap:.4rem;">
+                    <input type="checkbox" name="favicon_remove" value="1" style="width:auto;"> Odebrat vlastní ikonu (vrátit výchozí)
+                </label>
+                <?php endif; ?>
+            </div>
+        </div>
     </div>
     <div class="card">
         <h2 style="margin-top:0;font-size:1.1rem;">SEO a vyhledávače</h2>

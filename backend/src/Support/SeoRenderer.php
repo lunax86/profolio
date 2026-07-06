@@ -33,6 +33,8 @@ final class SeoRenderer
             $image = $baseUrl . '/' . ltrim($image, '/');
         }
 
+        $favicon = self::val($settings, 'favicon_path', '');
+
         $e = static fn (string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
 
         $tags = [
@@ -52,6 +54,9 @@ final class SeoRenderer
         if ($image !== '') {
             $tags[] = '<meta property="og:image" content="' . $e($image) . '">';
             $tags[] = '<meta name="twitter:image" content="' . $e($image) . '">';
+        }
+        if ($favicon !== '') {
+            $tags[] = '<link rel="icon" href="' . $e($favicon) . '">';
         }
 
         $ld = array_filter([
@@ -73,6 +78,10 @@ final class SeoRenderer
         // Nahraď statický <title> dynamickým a odstraň statický description (vkládáme vlastní).
         $html = preg_replace('#<title>.*?</title>#is', '<title>' . $e($title) . '</title>', $shellHtml, 1) ?? $shellHtml;
         $html = preg_replace('#\s*<meta\s+name="description"[^>]*>#i', '', $html, 1) ?? $html;
+        // Vlastní favicon z administrace nahradí statický z buildu.
+        if ($favicon !== '') {
+            $html = preg_replace('#\s*<link[^>]*rel="icon"[^>]*>#i', '', $html, 1) ?? $html;
+        }
 
         return str_replace('</head>', '    ' . $head . "\n  </head>", $html);
     }
