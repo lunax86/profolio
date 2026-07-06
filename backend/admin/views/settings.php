@@ -35,5 +35,12 @@ $val = static fn (string $k): string => htmlspecialchars((string) ($settings[$k]
         <label>Instagram</label>
         <input type="url" name="social_instagram" value="<?= $val('social_instagram') ?>">
     </div>
+    <div class="card">
+        <h2 style="margin-top:0;font-size:1.1rem;">Zásady ochrany osobních údajů (GDPR)</h2>
+        <p style="color:#64748b;font-size:.85rem;margin:.25rem 0 .5rem;">
+            Text se zobrazí návštěvníkům přes odkaz u formuláře a v patičce. Doplňte prosím údaje své firmy (název, IČO, sídlo).
+        </p>
+        <textarea name="privacy_policy" rows="14"><?= $val('privacy_policy') ?></textarea>
+    </div>
     <button type="submit">Uložit nastavení</button>
 </form>

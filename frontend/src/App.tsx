@@ -5,6 +5,7 @@ import { Services } from './sections/Services'
 import { InquiryForm } from './sections/InquiryForm'
 import { Portfolio } from './sections/Portfolio'
 import { Footer } from './sections/Footer'
+import { PrivacyModal } from './components/PrivacyModal'
 import { api, type PortfolioItem, type Service, type SiteSettings } from './lib/api'
 
 export default function App() {
@@ -12,6 +13,7 @@ export default function App() {
   const [services, setServices] = useState<Service[]>([])
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [privacyOpen, setPrivacyOpen] = useState(false)
 
   useEffect(() => {
     // návštěvnost – jednou za relaci prohlížeče
@@ -46,10 +48,15 @@ export default function App() {
       <main>
         <Hero settings={settings} />
         <Services services={services} />
-        <InquiryForm />
+        <InquiryForm onOpenPrivacy={() => setPrivacyOpen(true)} />
         <Portfolio items={portfolio} />
       </main>
-      <Footer settings={settings} />
+      <Footer settings={settings} onOpenPrivacy={() => setPrivacyOpen(true)} />
+      <PrivacyModal
+        open={privacyOpen}
+        onClose={() => setPrivacyOpen(false)}
+        text={settings.privacy_policy}
+      />
     </>
   )
 }

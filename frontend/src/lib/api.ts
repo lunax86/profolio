@@ -10,6 +10,7 @@ export interface SiteSettings {
   contact_address?: string
   social_facebook?: string
   social_instagram?: string
+  privacy_policy?: string
 }
 
 export interface Service {

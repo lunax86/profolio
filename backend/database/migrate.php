@@ -77,4 +77,32 @@ if (!in_array('is_archived', $inquiryColumns, true)) {
     echo "Přidán sloupec inquiries.is_archived.\n";
 }
 
+// Výchozí text zásad ochrany osobních údajů – jen pokud ještě není nastaven.
+$privacyDefault = <<<'TXT'
+Zásady ochrany osobních údajů
+
+Správce údajů
+Správcem osobních údajů je provozovatel tohoto webu; kontaktní údaje najdete v sekci Kontakt. Doplňte prosím v administraci konkrétní údaje své firmy (název, IČO, sídlo).
+
+Jaké údaje zpracováváme
+Prostřednictvím poptávkového formuláře zpracováváme jméno, e-mail, telefonní číslo a text zprávy, které nám sami zašlete.
+
+Účel a právní základ
+Údaje zpracováváme výhradně za účelem vyřízení vaší poptávky. Právním základem je opatření před uzavřením smlouvy, případně náš oprávněný zájem odpovědět na váš dotaz.
+
+Doba uchování
+Údaje uchováváme po dobu nezbytnou k vyřízení poptávky a navazující komunikace.
+
+Předání třetím stranám
+Vaše údaje nepředáváme třetím stranám ani je nevyužíváme k marketingu.
+
+Cookies a analytika
+Web nepoužívá marketingové ani sledovací cookies a návštěvnost měříme pouze anonymně.
+
+Vaše práva
+Máte právo na přístup ke svým údajům, jejich opravu či vymazání, omezení zpracování a vznést námitku. Pro uplatnění práv nás kontaktujte na e-mailu uvedeném v sekci Kontakt.
+TXT;
+$pdo->prepare("INSERT OR IGNORE INTO site_settings (key, value) VALUES ('privacy_policy', ?)")
+    ->execute([$privacyDefault]);
+
 echo "Migrace dokončeny.\n";

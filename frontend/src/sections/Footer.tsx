@@ -1,7 +1,13 @@
 import { Icon } from '@/components/Icon'
 import type { SiteSettings } from '@/lib/api'
 
-export function Footer({ settings }: { settings: SiteSettings }) {
+export function Footer({
+  settings,
+  onOpenPrivacy,
+}: {
+  settings: SiteSettings
+  onOpenPrivacy: () => void
+}) {
   const year = new Date().getFullYear()
 
   return (
@@ -76,6 +82,14 @@ export function Footer({ settings }: { settings: SiteSettings }) {
 
       <div className="border-t border-border py-6 text-center text-sm text-muted-foreground">
         © {year} {settings.site_title ?? 'Vaše firma'}. Všechna práva vyhrazena.
+        {' · '}
+        <button
+          type="button"
+          onClick={onOpenPrivacy}
+          className="underline underline-offset-2 transition-colors hover:text-foreground"
+        >
+          Zásady ochrany osobních údajů
+        </button>
       </div>
     </footer>
   )

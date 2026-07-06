@@ -109,7 +109,7 @@ switch ($action) {
         $repo = new SettingRepository();
         if ($method === 'POST') {
             $verifyCsrf();
-            $keys = ['site_title', 'hero_title', 'hero_slogan', 'hero_image', 'contact_email', 'contact_phone', 'contact_address', 'social_facebook', 'social_instagram'];
+            $keys = ['site_title', 'hero_title', 'hero_slogan', 'hero_image', 'contact_email', 'contact_phone', 'contact_address', 'social_facebook', 'social_instagram', 'privacy_policy'];
             $repo->setMany(array_intersect_key($_POST, array_flip($keys)));
             $redirect('settings');
         }

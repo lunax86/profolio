@@ -19,7 +19,7 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>
 
-export function InquiryForm() {
+export function InquiryForm({ onOpenPrivacy }: { onOpenPrivacy: () => void }) {
   const [sent, setSent] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
   const mountedAt = useRef(Date.now())
@@ -112,6 +112,18 @@ export function InquiryForm() {
                 {isSubmitting ? 'Odesílám…' : 'Odeslat poptávku'}
                 <Icon name="send" className="h-4 w-4" />
               </Button>
+              <p className="text-xs text-muted-foreground">
+                Odesláním formuláře souhlasíte se zpracováním osobních údajů za účelem vyřízení
+                poptávky. Více v{' '}
+                <button
+                  type="button"
+                  onClick={onOpenPrivacy}
+                  className="underline underline-offset-2 hover:text-foreground"
+                >
+                  Zásadách ochrany osobních údajů
+                </button>
+                .
+              </p>
             </form>
           )}
         </div>
