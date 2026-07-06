@@ -117,14 +117,26 @@ switch ($action) {
 
     case 'inquiries':
         $repo = new InquiryRepository();
+        $archivedView = ($_GET['archiv'] ?? '') === '1';
         if ($method === 'POST') {
             $verifyCsrf();
+            $id = (int) $post('id');
             if ($post('_action') === 'read') {
-                $repo->markRead((int) $post('id'));
+                $repo->markRead($id);
+            } elseif ($post('_action') === 'archive') {
+                $repo->setArchived($id, true);
+            } elseif ($post('_action') === 'unarchive') {
+                $repo->setArchived($id, false);
+            } elseif ($post('_action') === 'delete') {
+                $repo->deleteArchived($id);
             }
-            $redirect('inquiries');
+            $redirect('inquiries' . ($archivedView ? '?archiv=1' : ''));
         }
-        $render('inquiries', ['inquiries' => $repo->all()], 'Poptávky');
+        $render('inquiries', [
+            'inquiries' => $archivedView ? $repo->archived() : $repo->active(),
+            'archivedView' => $archivedView,
+            'archivedCount' => count($repo->archived()),
+        ], 'Poptávky');
         break;
 
     case 'dashboard':

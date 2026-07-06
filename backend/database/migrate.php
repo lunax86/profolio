@@ -49,14 +49,22 @@ SQL);
 
 $pdo->exec(<<<'SQL'
     CREATE TABLE IF NOT EXISTS inquiries (
-        id         INTEGER PRIMARY KEY AUTOINCREMENT,
-        name       TEXT NOT NULL,
-        email      TEXT NOT NULL,
-        phone      TEXT NOT NULL DEFAULT '',
-        message    TEXT NOT NULL DEFAULT '',
-        is_read    INTEGER NOT NULL DEFAULT 0,
-        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        name        TEXT NOT NULL,
+        email       TEXT NOT NULL,
+        phone       TEXT NOT NULL DEFAULT '',
+        message     TEXT NOT NULL DEFAULT '',
+        is_read     INTEGER NOT NULL DEFAULT 0,
+        is_archived INTEGER NOT NULL DEFAULT 0,
+        created_at  TEXT NOT NULL DEFAULT (datetime('now'))
     );
 SQL);
+
+// Idempotentní doplnění nových sloupců u již existujících databází.
+$inquiryColumns = array_column($pdo->query('PRAGMA table_info(inquiries)')->fetchAll(), 'name');
+if (!in_array('is_archived', $inquiryColumns, true)) {
+    $pdo->exec('ALTER TABLE inquiries ADD COLUMN is_archived INTEGER NOT NULL DEFAULT 0');
+    echo "Přidán sloupec inquiries.is_archived.\n";
+}
 
 echo "Migrace dokončeny.\n";

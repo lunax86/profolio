@@ -24,6 +24,24 @@ final class InquiryRepository
             ->fetchAll();
     }
 
+    /** Aktivní (nearchivované) poptávky.
+     * @return array<int, array<string, mixed>> */
+    public function active(): array
+    {
+        return $this->pdo
+            ->query('SELECT * FROM inquiries WHERE is_archived = 0 ORDER BY created_at DESC, id DESC')
+            ->fetchAll();
+    }
+
+    /** Archivované poptávky.
+     * @return array<int, array<string, mixed>> */
+    public function archived(): array
+    {
+        return $this->pdo
+            ->query('SELECT * FROM inquiries WHERE is_archived = 1 ORDER BY created_at DESC, id DESC')
+            ->fetchAll();
+    }
+
     public function create(array $data): int
     {
         $stmt = $this->pdo->prepare(
@@ -45,6 +63,21 @@ final class InquiryRepository
         $this->pdo->prepare('UPDATE inquiries SET is_read = 1 WHERE id = ?')->execute([$id]);
     }
 
+    public function setArchived(int $id, bool $archived): void
+    {
+        $this->pdo
+            ->prepare('UPDATE inquiries SET is_archived = ? WHERE id = ?')
+            ->execute([$archived ? 1 : 0, $id]);
+    }
+
+    /** Trvale smaže poptávku – jen pokud je archivovaná (pojistka proti smazání aktivní). */
+    public function deleteArchived(int $id): void
+    {
+        $this->pdo
+            ->prepare('DELETE FROM inquiries WHERE id = ? AND is_archived = 1')
+            ->execute([$id]);
+    }
+
     public function delete(int $id): void
     {
         $this->pdo->prepare('DELETE FROM inquiries WHERE id = ?')->execute([$id]);
@@ -52,6 +85,8 @@ final class InquiryRepository
 
     public function unreadCount(): int
     {
-        return (int) $this->pdo->query('SELECT COUNT(*) FROM inquiries WHERE is_read = 0')->fetchColumn();
+        return (int) $this->pdo
+            ->query('SELECT COUNT(*) FROM inquiries WHERE is_read = 0 AND is_archived = 0')
+            ->fetchColumn();
     }
 }
