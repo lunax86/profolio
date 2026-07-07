@@ -50,6 +50,8 @@ final class Auth
     public static function login(array $user): void
     {
         self::ensureSession();
+        // proti session fixation: nové ID při změně oprávnění (přihlášení)
+        session_regenerate_id(true);
         $_SESSION['admin_id'] = (int) $user['id'];
         $_SESSION['admin_email'] = $user['email'];
     }
@@ -78,6 +80,11 @@ final class Auth
     public static function ensureSession(): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_set_cookie_params([
+                'httponly' => true,                        // JS (ani XSS) session cookie nepřečte
+                'secure' => !empty($_SERVER['HTTPS']),     // jen přes HTTPS (v lokálním devu vypnuto)
+                'samesite' => 'Lax',                       // obrana proti CSRF navíc
+            ]);
             session_start();
         }
     }

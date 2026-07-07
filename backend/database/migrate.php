@@ -70,6 +70,16 @@ $pdo->exec(<<<'SQL'
     );
 SQL);
 
+$pdo->exec(<<<'SQL'
+    CREATE TABLE IF NOT EXISTS login_attempts (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        email      TEXT NOT NULL DEFAULT '',
+        ip         TEXT NOT NULL DEFAULT '',
+        success    INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+SQL);
+
 // Idempotentní doplnění nových sloupců u již existujících databází.
 $inquiryColumns = array_column($pdo->query('PRAGMA table_info(inquiries)')->fetchAll(), 'name');
 if (!in_array('is_archived', $inquiryColumns, true)) {
