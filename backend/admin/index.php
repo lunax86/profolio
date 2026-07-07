@@ -13,6 +13,7 @@ use App\Support\Auth;
 use App\Support\Csrf;
 use App\Support\RateLimiter;
 use App\Support\Uploader;
+use App\Support\Version;
 
 /*
  * Server-rendered administrace. Volané z public/index.php pro cesty /admin*.
@@ -165,10 +166,16 @@ switch ($action) {
 
     case 'dashboard':
     default:
+        $version = ['current' => Version::current(), 'latest' => null, 'slug' => Version::repoSlug(), 'upToDate' => null, 'error' => null, 'checked' => false];
+        if ($method === 'POST' && $post('_action') === 'check_updates') {
+            $verifyCsrf();
+            $version = Version::status() + ['checked' => true];
+        }
         $render('dashboard', [
             'servicesCount' => count((new ServiceRepository())->all()),
             'portfolioCount' => count((new PortfolioRepository())->all()),
             'unread' => (new InquiryRepository())->unreadCount(),
             'views' => (new PageViewRepository())->stats(),
+            'version' => $version,
         ], 'Přehled');
 }

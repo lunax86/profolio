@@ -7,7 +7,9 @@ declare(strict_types=1);
  * @var int $portfolioCount
  * @var int $unread
  * @var array{today:int, last7:int, total:int, perDay:array<int, array{day:string, count:int}>} $views
+ * @var array{current:?string, latest:?string, slug:?string, upToDate:?bool, error:?string, checked:bool} $version
  */
+$e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 $max = max(1, ...array_map(static fn ($d): int => (int) $d['count'], $views['perDay']));
 ?>
 <h1>Přehled</h1>
@@ -60,4 +62,35 @@ $max = max(1, ...array_map(static fn ($d): int => (int) $d['count'], $views['per
     <?php if (\App\Core\Config::get('APP_ENV') !== 'production'): ?>
     <p>API dokumentace: <a href="/swagger" target="_blank">/swagger</a></p>
     <?php endif; ?>
+</div>
+
+<div class="card">
+    <h2 style="margin-top:0;font-size:1.1rem;">Verze</h2>
+    <p style="color:#64748b;font-size:.9rem;margin:.25rem 0 .75rem;">
+        Nasazená verze: <code><?= $version['current'] ? $e(substr($version['current'], 0, 7)) : 'neznámá' ?></code>
+        <?php if ($version['slug']): ?>
+            · <a href="https://github.com/<?= $e($version['slug']) ?>" target="_blank"><?= $e($version['slug']) ?></a>
+        <?php endif; ?>
+    </p>
+
+    <?php if ($version['checked']): ?>
+        <?php if ($version['error']): ?>
+            <div class="alert"><?= $e($version['error']) ?></div>
+        <?php elseif ($version['upToDate']): ?>
+            <p style="color:#166534;font-weight:600;">✅ Máte nejnovější verzi.</p>
+        <?php else: ?>
+            <p style="color:#9a3412;font-weight:600;">
+                ⬆ K dispozici je novější verze (<code><?= $e(substr((string) $version['latest'], 0, 7)) ?></code>).
+                <?php if ($version['slug'] && $version['current']): ?>
+                    <a href="https://github.com/<?= $e($version['slug']) ?>/compare/<?= $e($version['current']) ?>...main" target="_blank">Zobrazit změny →</a>
+                <?php endif; ?>
+            </p>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <form method="post" action="/admin/dashboard">
+        <?= \App\Support\Csrf::field() ?>
+        <input type="hidden" name="_action" value="check_updates">
+        <button class="ghost" type="submit">Ověřit aktualizace</button>
+    </form>
 </div>
