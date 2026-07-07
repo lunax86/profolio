@@ -11,6 +11,7 @@
         "vlucas/phpdotenv": "^5.6"
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.95",
         "phpunit/phpunit": "^11.0"
     },
     "autoload": {
@@ -33,6 +34,8 @@
         "migrate": "@php database/migrate.php",
         "seed": "@php database/seed.php",
         "swagger": "@php bin/swagger.php",
-        "serve": "@php -S localhost:8000 -t public"
+        "serve": "@php -S localhost:8000 -t public",
+        "cs": "php-cs-fixer fix",
+        "cs:check": "php-cs-fixer fix --dry-run --diff"
     }
 }

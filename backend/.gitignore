@@ -5,3 +5,4 @@
 /storage/uploads/*
 !/storage/uploads/.gitkeep
 /storage/ratelimit/
+/.php-cs-fixer.cache

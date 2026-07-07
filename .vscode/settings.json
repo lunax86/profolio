@@ -1,0 +1,13 @@
+{
+    "editor.formatOnSave": true,
+    "[javascript][javascriptreact][typescript][typescriptreact][json][jsonc][css][html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[php]": {
+        "editor.formatOnSave": false
+    },
+    "workbench.tree.indent": 16,
+    "explorer.compactFolders": false,
+    "editor.guides.bracketPairs": "active",
+    "git.blame.editorDecoration.enabled": true
+}
