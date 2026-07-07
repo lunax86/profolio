@@ -38,4 +38,4 @@ Web běží na <http://localhost:5173> (API i obrázky proxuje na backend `:8000
 | Ukázky práce (fotky) | Administrace → Portfolio |
 | Přijaté poptávky | Administrace → Poptávky |
 
-Podrobná architektura je v [CLAUDE.md](./CLAUDE.md), přehled projektu v [PLAN.md](./PLAN.md), nasazení krok za krokem v [DEPLOYMENT.md](./DEPLOYMENT.md).
+Podrobná architektura je v [CLAUDE.md](./CLAUDE.md), přehled projektu v [PLAN.md](./PLAN.md), nasazení krok za krokem v [DEPLOYMENT.md](./DEPLOYMENT.md), provoz a údržba v [RUNBOOK.md](./RUNBOOK.md).
