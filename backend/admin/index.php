@@ -173,11 +173,16 @@ switch ($action) {
 
     case 'security':
         $attempts = new LoginAttemptRepository();
+        $periods = ['24h' => 86400, '7d' => 604800, '30d' => 2592000];
+        $period = array_key_exists((string) ($_GET['obdobi'] ?? ''), $periods) ? (string) $_GET['obdobi'] : '24h';
+        $seconds = $periods[$period];
         $cookieParams = session_get_cookie_params();
         $render('security', [
-            'attempts' => $attempts->recent(50),
-            'failed24h' => $attempts->failedSince(86400),
+            'attempts' => $attempts->since($seconds, 200),
+            'total' => $attempts->countSince($seconds),
+            'failed' => $attempts->countSince($seconds, true),
             'blockedIps' => $attempts->blockedIps(5, 900),
+            'period' => $period,
             'status' => [
                 'https' => !empty($_SERVER['HTTPS']),
                 'httpOnly' => (bool) ($cookieParams['httponly'] ?? false),

@@ -23,22 +23,28 @@ final class LoginAttemptRepository
             ->execute([$email, $ip, $success ? 1 : 0]);
     }
 
-    /** @return array<int, array<string, mixed>> */
-    public function recent(int $limit = 50): array
+    /**
+     * Pokusy za posledních `$seconds` sekund (nejnovější první, omezeno na `$limit`).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function since(int $seconds, int $limit = 200): array
     {
-        $statement = $this->pdo->prepare('SELECT * FROM login_attempts ORDER BY id DESC LIMIT ?');
-        $statement->bindValue(1, $limit, PDO::PARAM_INT);
+        $statement = $this->pdo->prepare(
+            'SELECT * FROM login_attempts WHERE created_at >= :cutoff ORDER BY id DESC LIMIT :limit'
+        );
+        $statement->bindValue(':cutoff', self::cutoff($seconds));
+        $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
         $statement->execute();
 
         return $statement->fetchAll();
     }
 
-    /** Počet neúspěšných pokusů za posledních `$seconds` sekund. */
-    public function failedSince(int $seconds): int
+    /** Počet pokusů za posledních `$seconds` sekund (volitelně jen neúspěšných). */
+    public function countSince(int $seconds, bool $onlyFailed = false): int
     {
-        $statement = $this->pdo->prepare(
-            'SELECT COUNT(*) FROM login_attempts WHERE success = 0 AND created_at >= ?'
-        );
+        $condition = $onlyFailed ? 'created_at >= ? AND success = 0' : 'created_at >= ?';
+        $statement = $this->pdo->prepare("SELECT COUNT(*) FROM login_attempts WHERE {$condition}");
         $statement->execute([self::cutoff($seconds)]);
 
         return (int) $statement->fetchColumn();
