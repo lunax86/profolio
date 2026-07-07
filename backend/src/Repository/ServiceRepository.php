@@ -26,30 +26,30 @@ final class ServiceRepository
 
     public function find(int $id): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM services WHERE id = ?');
-        $stmt->execute([$id]);
+        $statement = $this->pdo->prepare('SELECT * FROM services WHERE id = ?');
+        $statement->execute([$id]);
 
-        return $stmt->fetch() ?: null;
+        return $statement->fetch() ?: null;
     }
 
     public function create(array $data): int
     {
-        $stmt = $this->pdo->prepare(
+        $statement = $this->pdo->prepare(
             'INSERT INTO services (title, description, icon, sort_order)
              VALUES (:title, :description, :icon, :sort_order)'
         );
-        $stmt->execute($this->fields($data));
+        $statement->execute($this->fields($data));
 
         return (int) $this->pdo->lastInsertId();
     }
 
     public function update(int $id, array $data): void
     {
-        $stmt = $this->pdo->prepare(
+        $statement = $this->pdo->prepare(
             'UPDATE services SET title = :title, description = :description,
              icon = :icon, sort_order = :sort_order WHERE id = :id'
         );
-        $stmt->execute([...$this->fields($data), 'id' => $id]);
+        $statement->execute([...$this->fields($data), 'id' => $id]);
     }
 
     public function delete(int $id): void

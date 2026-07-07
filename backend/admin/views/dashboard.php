@@ -9,8 +9,8 @@ declare(strict_types=1);
  * @var array{today:int, last7:int, total:int, perDay:array<int, array{day:string, count:int}>} $views
  * @var array{current:?string, latest:?string, slug:?string, upToDate:?bool, error:?string, checked:bool} $version
  */
-$e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
-$max = max(1, ...array_map(static fn ($d): int => (int) $d['count'], $views['perDay']));
+$escape = static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+$maxCount = max(1, ...array_map(static fn ($day): int => (int) $day['count'], $views['perDay']));
 ?>
 <h1>Přehled</h1>
 <div class="grid">
@@ -38,9 +38,9 @@ $max = max(1, ...array_map(static fn ($d): int => (int) $d['count'], $views['per
         <div><div class="stat"><?= (int) $views['total'] ?></div><div>celkem</div></div>
     </div>
     <div class="views-chart">
-        <?php foreach ($views['perDay'] as $d): ?>
-            <div class="views-bar" title="<?= htmlspecialchars($d['day'], ENT_QUOTES) ?>: <?= (int) $d['count'] ?>">
-                <div class="views-bar-fill" style="height: <?= (int) round($d['count'] / $max * 100) ?>%"></div>
+        <?php foreach ($views['perDay'] as $day): ?>
+            <div class="views-bar" title="<?= htmlspecialchars($day['day'], ENT_QUOTES) ?>: <?= (int) $day['count'] ?>">
+                <div class="views-bar-fill" style="height: <?= (int) round($day['count'] / $maxCount * 100) ?>%"></div>
             </div>
         <?php endforeach; ?>
     </div>
@@ -67,22 +67,22 @@ $max = max(1, ...array_map(static fn ($d): int => (int) $d['count'], $views['per
 <div class="card">
     <h2 style="margin-top:0;font-size:1.1rem;">Verze</h2>
     <p style="color:#64748b;font-size:.9rem;margin:.25rem 0 .75rem;">
-        Nasazená verze: <code><?= $version['current'] ? $e(substr($version['current'], 0, 7)) : 'neznámá' ?></code>
+        Nasazená verze: <code><?= $version['current'] ? $escape(substr($version['current'], 0, 7)) : 'neznámá' ?></code>
         <?php if ($version['slug']): ?>
-            · <a href="https://github.com/<?= $e($version['slug']) ?>" target="_blank"><?= $e($version['slug']) ?></a>
+            · <a href="https://github.com/<?= $escape($version['slug']) ?>" target="_blank"><?= $escape($version['slug']) ?></a>
         <?php endif; ?>
     </p>
 
     <?php if ($version['checked']): ?>
         <?php if ($version['error']): ?>
-            <div class="alert"><?= $e($version['error']) ?></div>
+            <div class="alert"><?= $escape($version['error']) ?></div>
         <?php elseif ($version['upToDate']): ?>
             <p style="color:#166534;font-weight:600;">✅ Máte nejnovější verzi.</p>
         <?php else: ?>
             <p style="color:#9a3412;font-weight:600;">
-                ⬆ K dispozici je novější verze (<code><?= $e(substr((string) $version['latest'], 0, 7)) ?></code>).
+                ⬆ K dispozici je novější verze (<code><?= $escape(substr((string) $version['latest'], 0, 7)) ?></code>).
                 <?php if ($version['slug'] && $version['current']): ?>
-                    <a href="https://github.com/<?= $e($version['slug']) ?>/compare/<?= $e($version['current']) ?>...main" target="_blank">Zobrazit změny →</a>
+                    <a href="https://github.com/<?= $escape($version['slug']) ?>/compare/<?= $escape($version['current']) ?>...main" target="_blank">Zobrazit změny →</a>
                 <?php endif; ?>
             </p>
         <?php endif; ?>

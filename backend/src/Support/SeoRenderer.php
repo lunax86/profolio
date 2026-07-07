@@ -16,67 +16,67 @@ final class SeoRenderer
      */
     public static function render(string $shellHtml, array $settings, string $baseUrl, string $path): string
     {
-        $siteTitle = self::val($settings, 'site_title', 'Firemní web');
-        $slogan = self::val($settings, 'hero_slogan', self::val($settings, 'hero_title', ''));
+        $siteTitle = self::settingValue($settings, 'site_title', 'Firemní web');
+        $slogan = self::settingValue($settings, 'hero_slogan', self::settingValue($settings, 'hero_title', ''));
 
         // Přednost mají vlastní SEO pole z administrace, jinak se odvodí z názvu/sloganu.
         $derivedTitle = $slogan !== '' ? $siteTitle . ' – ' . $slogan : $siteTitle;
-        $title = self::val($settings, 'seo_title', $derivedTitle);
-        $description = self::val($settings, 'seo_description', $slogan !== '' ? $slogan : $siteTitle);
+        $title = self::settingValue($settings, 'seo_title', $derivedTitle);
+        $description = self::settingValue($settings, 'seo_description', $slogan !== '' ? $slogan : $siteTitle);
         $robots = ($settings['seo_index'] ?? '1') === '0' ? 'noindex,nofollow' : 'index,follow';
 
         $baseUrl = rtrim($baseUrl, '/');
         $canonical = $baseUrl . ($path === '' ? '/' : $path);
 
-        $image = self::val($settings, 'seo_image', self::val($settings, 'hero_image', ''));
+        $image = self::settingValue($settings, 'seo_image', self::settingValue($settings, 'hero_image', ''));
         if ($image !== '' && !preg_match('#^https?://#', $image)) {
             $image = $baseUrl . '/' . ltrim($image, '/');
         }
 
-        $favicon = self::val($settings, 'favicon_path', '');
+        $favicon = self::settingValue($settings, 'favicon_path', '');
 
-        $e = static fn (string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+        $escape = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 
         $tags = [
-            '<meta name="description" content="' . $e($description) . '">',
-            '<link rel="canonical" href="' . $e($canonical) . '">',
+            '<meta name="description" content="' . $escape($description) . '">',
+            '<link rel="canonical" href="' . $escape($canonical) . '">',
             '<meta name="robots" content="' . $robots . '">',
             '<meta property="og:type" content="website">',
-            '<meta property="og:site_name" content="' . $e($siteTitle) . '">',
-            '<meta property="og:title" content="' . $e($title) . '">',
-            '<meta property="og:description" content="' . $e($description) . '">',
-            '<meta property="og:url" content="' . $e($canonical) . '">',
+            '<meta property="og:site_name" content="' . $escape($siteTitle) . '">',
+            '<meta property="og:title" content="' . $escape($title) . '">',
+            '<meta property="og:description" content="' . $escape($description) . '">',
+            '<meta property="og:url" content="' . $escape($canonical) . '">',
             '<meta property="og:locale" content="cs_CZ">',
             '<meta name="twitter:card" content="' . ($image !== '' ? 'summary_large_image' : 'summary') . '">',
-            '<meta name="twitter:title" content="' . $e($title) . '">',
-            '<meta name="twitter:description" content="' . $e($description) . '">',
+            '<meta name="twitter:title" content="' . $escape($title) . '">',
+            '<meta name="twitter:description" content="' . $escape($description) . '">',
         ];
         if ($image !== '') {
-            $tags[] = '<meta property="og:image" content="' . $e($image) . '">';
-            $tags[] = '<meta name="twitter:image" content="' . $e($image) . '">';
+            $tags[] = '<meta property="og:image" content="' . $escape($image) . '">';
+            $tags[] = '<meta name="twitter:image" content="' . $escape($image) . '">';
         }
         if ($favicon !== '') {
-            $tags[] = '<link rel="icon" href="' . $e($favicon) . '">';
+            $tags[] = '<link rel="icon" href="' . $escape($favicon) . '">';
         }
 
-        $ld = array_filter([
+        $jsonLd = array_filter([
             '@context' => 'https://schema.org',
             '@type' => 'LocalBusiness',
             'name' => $siteTitle,
             'url' => $baseUrl . '/',
             'image' => $image !== '' ? $image : null,
-            'email' => self::val($settings, 'contact_email', '') ?: null,
-            'telephone' => self::val($settings, 'contact_phone', '') ?: null,
-            'address' => self::val($settings, 'contact_address', '') ?: null,
-        ], static fn ($v): bool => $v !== null && $v !== '');
+            'email' => self::settingValue($settings, 'contact_email', '') ?: null,
+            'telephone' => self::settingValue($settings, 'contact_phone', '') ?: null,
+            'address' => self::settingValue($settings, 'contact_address', '') ?: null,
+        ], static fn ($value): bool => $value !== null && $value !== '');
         $tags[] = '<script type="application/ld+json">'
-            . json_encode($ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+            . json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
             . '</script>';
 
         $head = implode("\n    ", $tags);
 
         // Nahraď statický <title> dynamickým a odstraň statický description (vkládáme vlastní).
-        $html = preg_replace('#<title>.*?</title>#is', '<title>' . $e($title) . '</title>', $shellHtml, 1) ?? $shellHtml;
+        $html = preg_replace('#<title>.*?</title>#is', '<title>' . $escape($title) . '</title>', $shellHtml, 1) ?? $shellHtml;
         $html = preg_replace('#\s*<meta\s+name="description"[^>]*>#i', '', $html, 1) ?? $html;
         // Vlastní favicon z administrace nahradí statický z buildu.
         if ($favicon !== '') {
@@ -86,11 +86,11 @@ final class SeoRenderer
         return str_replace('</head>', '    ' . $head . "\n  </head>", $html);
     }
 
-    /** @param array<string, string> $s */
-    private static function val(array $s, string $key, string $default): string
+    /** @param array<string, string> $settings */
+    private static function settingValue(array $settings, string $key, string $default): string
     {
-        $v = trim((string) ($s[$key] ?? ''));
+        $value = trim((string) ($settings[$key] ?? ''));
 
-        return $v !== '' ? $v : $default;
+        return $value !== '' ? $value : $default;
     }
 }

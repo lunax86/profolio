@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Support\Csrf;
 
 /** @var array<int, array<string, mixed>> $services */
-$e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+$escape = static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 ?>
 <h1>Služby</h1>
 
@@ -29,17 +29,17 @@ $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'
     <table>
         <thead><tr><th>Ikona</th><th>Název</th><th>Popis</th><th>Pořadí</th><th></th></tr></thead>
         <tbody>
-        <?php foreach ($services as $s): ?>
+        <?php foreach ($services as $service): ?>
             <tr>
-                <td><span class="badge"><?= $e($s['icon']) ?></span></td>
-                <td><?= $e($s['title']) ?></td>
-                <td><?= $e($s['description']) ?></td>
-                <td><?= (int) $s['sort_order'] ?></td>
+                <td><span class="badge"><?= $escape($service['icon']) ?></span></td>
+                <td><?= $escape($service['title']) ?></td>
+                <td><?= $escape($service['description']) ?></td>
+                <td><?= (int) $service['sort_order'] ?></td>
                 <td>
                     <form method="post" action="/admin/services" onsubmit="return confirm('Smazat službu?')">
                         <?= Csrf::field() ?>
                         <input type="hidden" name="_action" value="delete">
-                        <input type="hidden" name="id" value="<?= (int) $s['id'] ?>">
+                        <input type="hidden" name="id" value="<?= (int) $service['id'] ?>">
                         <button class="danger" type="submit">Smazat</button>
                     </form>
                 </td>

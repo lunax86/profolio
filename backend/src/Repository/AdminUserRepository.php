@@ -18,18 +18,18 @@ final class AdminUserRepository
 
     public function findByEmail(string $email): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM admin_users WHERE email = ?');
-        $stmt->execute([$email]);
+        $statement = $this->pdo->prepare('SELECT * FROM admin_users WHERE email = ?');
+        $statement->execute([$email]);
 
-        return $stmt->fetch() ?: null;
+        return $statement->fetch() ?: null;
     }
 
     public function create(string $email, string $passwordHash): int
     {
-        $stmt = $this->pdo->prepare(
+        $statement = $this->pdo->prepare(
             'INSERT INTO admin_users (email, password_hash) VALUES (?, ?)'
         );
-        $stmt->execute([$email, $passwordHash]);
+        $statement->execute([$email, $passwordHash]);
 
         return (int) $this->pdo->lastInsertId();
     }

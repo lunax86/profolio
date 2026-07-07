@@ -39,8 +39,8 @@ final class Version
         }
         // fallback: packed-refs
         foreach (@file(self::gitDir() . '/packed-refs', FILE_IGNORE_NEW_LINES) ?: [] as $line) {
-            if (str_ends_with($line, ' ' . $ref) && preg_match('/^[0-9a-f]{40}/', $line, $m)) {
-                return $m[0];
+            if (str_ends_with($line, ' ' . $ref) && preg_match('/^[0-9a-f]{40}/', $line, $matches)) {
+                return $matches[0];
             }
         }
 
@@ -51,8 +51,8 @@ final class Version
     public static function repoSlug(): ?string
     {
         $config = (string) @file_get_contents(self::gitDir() . '/config');
-        if (preg_match('#github\.com[:/]([^/]+)/([^/\s.]+)#', $config, $m)) {
-            return $m[1] . '/' . $m[2];
+        if (preg_match('#github\.com[:/]([^/]+)/([^/\s.]+)#', $config, $matches)) {
+            return $matches[1] . '/' . $matches[2];
         }
 
         return null;
@@ -94,18 +94,18 @@ final class Version
             return (string) $cached['sha'] ?: null;
         }
 
-        $ctx = stream_context_create(['http' => [
+        $context = stream_context_create(['http' => [
             'method' => 'GET',
             'header' => "User-Agent: profolio-admin\r\nAccept: application/vnd.github+json\r\n",
             'timeout' => 5,
         ]]);
-        $raw = @file_get_contents("https://api.github.com/repos/{$slug}/commits/main", false, $ctx);
-        if ($raw === false) {
+        $rawResponse = @file_get_contents("https://api.github.com/repos/{$slug}/commits/main", false, $context);
+        if ($rawResponse === false) {
             $error = 'GitHub se nepodařilo kontaktovat (síť / limit API).';
 
             return null;
         }
-        $data = json_decode($raw, true);
+        $data = json_decode($rawResponse, true);
         $sha = is_array($data) ? ($data['sha'] ?? null) : null;
         if (!is_string($sha)) {
             $error = 'Neočekávaná odpověď z GitHub API.';

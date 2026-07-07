@@ -39,27 +39,27 @@ final class PageViewRepository
         $chartFrom = $now->modify('-' . ($chartDays - 1) . ' days')->format('Y-m-d');
 
         $count = function (string $sql, array $args = []): int {
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute($args);
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute($args);
 
-            return (int) $stmt->fetchColumn();
+            return (int) $statement->fetchColumn();
         };
 
         // Naměřené dny → mapa den => počet
-        $stmt = $this->pdo->prepare(
+        $statement = $this->pdo->prepare(
             'SELECT day, COUNT(*) AS c FROM page_views WHERE day >= ? GROUP BY day'
         );
-        $stmt->execute([$chartFrom]);
+        $statement->execute([$chartFrom]);
         $byDay = [];
-        foreach ($stmt->fetchAll() as $row) {
+        foreach ($statement->fetchAll() as $row) {
             $byDay[(string) $row['day']] = (int) $row['c'];
         }
 
         // Souvislá řada i s prázdnými dny (count 0)
         $perDay = [];
         for ($i = $chartDays - 1; $i >= 0; $i--) {
-            $d = $now->modify('-' . $i . ' days')->format('Y-m-d');
-            $perDay[] = ['day' => $d, 'count' => $byDay[$d] ?? 0];
+            $day = $now->modify('-' . $i . ' days')->format('Y-m-d');
+            $perDay[] = ['day' => $day, 'count' => $byDay[$day] ?? 0];
         }
 
         return [

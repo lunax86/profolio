@@ -44,11 +44,11 @@ final class InquiryRepository
 
     public function create(array $data): int
     {
-        $stmt = $this->pdo->prepare(
+        $statement = $this->pdo->prepare(
             'INSERT INTO inquiries (name, email, phone, message)
              VALUES (:name, :email, :phone, :message)'
         );
-        $stmt->execute([
+        $statement->execute([
             'name' => (string) ($data['name'] ?? ''),
             'email' => (string) ($data['email'] ?? ''),
             'phone' => (string) ($data['phone'] ?? ''),

@@ -77,7 +77,7 @@ export function Navbar({ settings }: { settings: SiteSettings }) {
                         variant="ghost"
                         size="icon"
                         className={cn('md:hidden', !scrolled && 'text-white hover:bg-white/10')}
-                        onClick={() => setOpen((v) => !v)}
+                        onClick={() => setOpen((isOpen) => !isOpen)}
                         aria-label="Menu"
                     >
                         <Icon name={open ? 'x' : 'menu'} className="h-5 w-5" />

@@ -74,6 +74,7 @@ Barvy jsou HSL CSS proměnné v `index.css` (light + `.dark` blok), mapované v 
 ## Konvence
 
 - PHP: `declare(strict_types=1)`, `final` třídy, typované vlastnosti, `match`. Namespace `App\` → `src/` (PSR-4).
+- **Názvy proměnných: popisné, celá slova** (PHP i TS) — **žádné 1-3písmenné názvy ani zkratky**: `$matches` ne `$m`, `$inquiry` ne `$q`, `$escapeHtml` ne `$e`, `$value` ne `$val`, `$fileHandle` ne `$fh`. Čitelnost pro údržbu má přednost před úsporností.
 - **Formátování** (dev-only, spusť před commitem): frontend **Prettier** + `prettier-plugin-tailwindcss` (zdroj pravdy `.prettierrc.json`: **4 mezery, středníky, jednoduché uvozovky, trailing commas**, plugin řadí utility třídy) → `npm run format`; backend **PHP-CS-Fixer** (`.php-cs-fixer.dist.php`, PSR-12, taky 4 mezery) → `composer cs`. Společný `.editorconfig` (4 mezery všude).
 - Uživatelsky viditelné texty jsou česky (včetně validačních hlášek). **Pozor na ASCII uvozovky `"` v PHP double-quoted stringech** - používej typografické `„"` nebo konkatenaci.
 - Cílová verze je **PHP 8.2** (composer `platform` je zamčený na 8.2), i když lokálně může běžet novější PHP. `swagger-php` na PHP 8.5 hlásí deprecations - proto se při scanu v `index.php` dočasně vypínají.

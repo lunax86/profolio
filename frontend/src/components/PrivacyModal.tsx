@@ -11,13 +11,13 @@ interface PrivacyModalProps {
 export function PrivacyModal({ open, onClose, text }: PrivacyModalProps) {
     useEffect(() => {
         if (!open) return;
-        const onKey = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose();
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') onClose();
         };
-        window.addEventListener('keydown', onKey);
+        window.addEventListener('keydown', onKeyDown);
         document.body.style.overflow = 'hidden';
         return () => {
-            window.removeEventListener('keydown', onKey);
+            window.removeEventListener('keydown', onKeyDown);
             document.body.style.overflow = '';
         };
     }, [open, onClose]);
@@ -34,7 +34,7 @@ export function PrivacyModal({ open, onClose, text }: PrivacyModalProps) {
         >
             <div
                 className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-lg border border-border bg-card p-6 shadow-xl sm:p-8"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(event) => event.stopPropagation()}
             >
                 <button
                     type="button"

@@ -29,9 +29,9 @@ final class SettingRepository
 
     public function get(string $key, ?string $default = null): ?string
     {
-        $stmt = $this->pdo->prepare('SELECT value FROM site_settings WHERE key = ?');
-        $stmt->execute([$key]);
-        $value = $stmt->fetchColumn();
+        $statement = $this->pdo->prepare('SELECT value FROM site_settings WHERE key = ?');
+        $statement->execute([$key]);
+        $value = $statement->fetchColumn();
 
         return $value === false ? $default : (string) $value;
     }
@@ -39,12 +39,12 @@ final class SettingRepository
     /** @param array<string, string|null> $values */
     public function setMany(array $values): void
     {
-        $stmt = $this->pdo->prepare(
+        $statement = $this->pdo->prepare(
             'INSERT INTO site_settings (key, value) VALUES (:key, :value)
              ON CONFLICT(key) DO UPDATE SET value = excluded.value'
         );
         foreach ($values as $key => $value) {
-            $stmt->execute(['key' => $key, 'value' => $value]);
+            $statement->execute(['key' => $key, 'value' => $value]);
         }
     }
 }

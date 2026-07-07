@@ -39,8 +39,8 @@ export function InquiryForm({ onOpenPrivacy }: { onOpenPrivacy: () => void }) {
             });
             setSent(true);
             reset();
-        } catch (e) {
-            setServerError(e instanceof Error ? e.message : 'Odeslání selhalo');
+        } catch (error) {
+            setServerError(error instanceof Error ? error.message : 'Odeslání selhalo');
         }
     };
 
@@ -55,10 +55,10 @@ export function InquiryForm({ onOpenPrivacy }: { onOpenPrivacy: () => void }) {
                         zdarma a nezávazná.
                     </p>
                     <ul className="mt-8 space-y-3 text-sm">
-                        {['Odpověď do 24 hodin', 'Návrh na míru zdarma', 'Bez skrytých poplatků'].map((t) => (
-                            <li key={t} className="flex items-center gap-3">
+                        {['Odpověď do 24 hodin', 'Návrh na míru zdarma', 'Bez skrytých poplatků'].map((benefit) => (
+                            <li key={benefit} className="flex items-center gap-3">
                                 <Icon name="check-circle-2" className="h-5 w-5 text-primary" />
-                                {t}
+                                {benefit}
                             </li>
                         ))}
                     </ul>

@@ -6,7 +6,7 @@ use App\Support\Auth;
 
 /** @var string $title */
 $loggedIn = Auth::check();
-$nav = [
+$navigation = [
     'dashboard' => 'Přehled',
     'inquiries' => 'Poptávky',
     'services' => 'Služby',
@@ -14,14 +14,14 @@ $nav = [
     'settings' => 'Nastavení',
 ];
 $current = trim(str_replace('/admin', '', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: ''), '/') ?: 'dashboard';
-$e = static fn (?string $v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+$escape = static fn (?string $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 ?>
 <!DOCTYPE html>
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= $e($title ?? 'Administrace') ?> · Administrace</title>
+    <title><?= $escape($title ?? 'Administrace') ?> · Administrace</title>
     <style>
         :root { --bg:#0f172a; --panel:#1e293b; --muted:#94a3b8; --text:#e2e8f0; --brand:#6366f1; --border:#334155; --danger:#ef4444; }
         * { box-sizing: border-box; }
@@ -70,7 +70,7 @@ $e = static fn (?string $v): string => htmlspecialchars((string) $v, ENT_QUOTES,
     <input type="checkbox" id="navToggle" class="nav-toggle" hidden>
     <label for="navToggle" class="burger" aria-label="Menu">☰</label>
     <nav>
-        <?php foreach ($nav as $key => $label): ?>
+        <?php foreach ($navigation as $key => $label): ?>
             <a href="/admin/<?= $key ?>" class="<?= $current === $key ? 'active' : '' ?>"><?= $label ?></a>
         <?php endforeach; ?>
         <a href="/admin/logout" class="logout">Odhlásit</a>

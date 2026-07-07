@@ -56,8 +56,8 @@ final class Request
     public function bearerToken(): ?string
     {
         $header = $this->server['HTTP_AUTHORIZATION'] ?? '';
-        if (preg_match('/Bearer\s+(.+)/i', $header, $m)) {
-            return $m[1];
+        if (preg_match('/Bearer\s+(.+)/i', $header, $matches)) {
+            return $matches[1];
         }
 
         return null;

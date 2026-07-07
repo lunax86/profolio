@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Support\Csrf;
 
 /** @var array<int, array<string, mixed>> $items */
-$e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+$escape = static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 ?>
 <h1>Ukázky práce (Portfolio)</h1>
 
@@ -28,9 +28,9 @@ $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'
 <div class="grid">
     <?php foreach ($items as $i): ?>
         <div class="card">
-            <img class="thumb" src="<?= $e($i['image_path']) ?>" alt="<?= $e($i['title']) ?>">
-            <strong><?= $e($i['title']) ?></strong>
-            <p style="color:#64748b;font-size:.9rem"><?= $e($i['description']) ?></p>
+            <img class="thumb" src="<?= $escape($i['image_path']) ?>" alt="<?= $escape($i['title']) ?>">
+            <strong><?= $escape($i['title']) ?></strong>
+            <p style="color:#64748b;font-size:.9rem"><?= $escape($i['description']) ?></p>
             <form method="post" action="/admin/portfolio" onsubmit="return confirm('Smazat ukázku?')">
                 <?= Csrf::field() ?>
                 <input type="hidden" name="_action" value="delete">

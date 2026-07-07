@@ -25,7 +25,7 @@ Auth::ensureSession();
 $path = rtrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/', '/');
 $action = trim(str_replace('/admin', '', $path), '/') ?: 'dashboard';
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-$post = static fn (string $k, $d = '') => $_POST[$k] ?? $d;
+$post = static fn (string $key, $default = '') => $_POST[$key] ?? $default;
 
 /** Vykreslení šablony s layoutem. */
 $render = static function (string $view, array $data = [], string $title = 'Administrace'): void {
@@ -49,13 +49,13 @@ $verifyCsrf = static function () use ($post): void {
 if ($action === 'login') {
     $limiter = new RateLimiter(Config::basePath('/storage/ratelimit'));
     $loginKey = 'login:' . (string) ($_SERVER['REMOTE_ADDR'] ?? '');
-    $lockedMsg = 'Příliš mnoho pokusů o přihlášení. Zkuste to prosím za 15 minut.';
+    $lockedMessage = 'Příliš mnoho pokusů o přihlášení. Zkuste to prosím za 15 minut.';
     $locked = $limiter->tooMany($loginKey, 5, 900); // max 5 neúspěchů / 15 min na IP
 
     if ($method === 'POST') {
         $verifyCsrf();
         if ($locked) {
-            $render('login', ['error' => $lockedMsg], 'Přihlášení');
+            $render('login', ['error' => $lockedMessage], 'Přihlášení');
 
             return;
         }
@@ -69,7 +69,7 @@ if ($action === 'login') {
 
         return;
     }
-    $render('login', ['error' => $locked ? $lockedMsg : null], 'Přihlášení');
+    $render('login', ['error' => $locked ? $lockedMessage : null], 'Přihlášení');
 
     return;
 }
@@ -131,8 +131,8 @@ switch ($action) {
             } elseif (!empty($_FILES['favicon']['tmp_name'])) {
                 try {
                     $repo->setMany(['favicon_path' => Uploader::store($_FILES['favicon'])]);
-                } catch (\RuntimeException $e) {
-                    $redirect('settings?err=' . rawurlencode($e->getMessage()));
+                } catch (\RuntimeException $exception) {
+                    $redirect('settings?err=' . rawurlencode($exception->getMessage()));
                 }
             }
             $redirect('settings');

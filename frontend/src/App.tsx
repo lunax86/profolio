@@ -25,12 +25,12 @@ export default function App() {
 
     useEffect(() => {
         Promise.all([api.settings(), api.services(), api.portfolio()])
-            .then(([s, sv, p]) => {
-                setSettings(s);
-                setServices(sv);
-                setPortfolio(p);
+            .then(([loadedSettings, loadedServices, loadedPortfolio]) => {
+                setSettings(loadedSettings);
+                setServices(loadedServices);
+                setPortfolio(loadedPortfolio);
             })
-            .catch((e) => console.error('Načtení dat selhalo', e))
+            .catch((error) => console.error('Načtení dat selhalo', error))
             .finally(() => setLoading(false));
     }, []);
 

@@ -9,9 +9,9 @@ use App\Support\Csrf;
  * @var bool $archivedView
  * @var int  $archivedCount
  */
-$e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+$escape = static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 /** created_at je v DB uložený v UTC – zobraz ho v pražském čase. */
-$fmtDate = static function ($utc): string {
+$formatDate = static function ($utc): string {
     try {
         return (new DateTimeImmutable((string) $utc, new DateTimeZone('UTC')))
             ->setTimezone(new DateTimeZone('Europe/Prague'))
@@ -33,44 +33,44 @@ $formAction = '/admin/inquiries' . ($archivedView ? '?archiv=1' : '');
     <?php if ($inquiries === []): ?>
         <p><?= $archivedView ? 'Archiv je prázdný.' : 'Zatím žádné poptávky.' ?></p>
     <?php endif; ?>
-    <?php foreach ($inquiries as $q): ?>
-        <div class="inquiry<?= $q['is_read'] ? ' is-read' : '' ?>">
+    <?php foreach ($inquiries as $inquiry): ?>
+        <div class="inquiry<?= $inquiry['is_read'] ? ' is-read' : '' ?>">
             <div class="inquiry-head">
-                <span class="inquiry-date"><?= $e($fmtDate($q['created_at'])) ?></span>
+                <span class="inquiry-date"><?= $escape($formatDate($inquiry['created_at'])) ?></span>
                 <strong class="inquiry-name">
-                    <?= $e($q['name']) ?>
-                    <?php if (!$q['is_read'] && !$archivedView): ?><span class="badge">nové</span><?php endif; ?>
+                    <?= $escape($inquiry['name']) ?>
+                    <?php if (!$inquiry['is_read'] && !$archivedView): ?><span class="badge">nové</span><?php endif; ?>
                 </strong>
                 <span class="inquiry-contact">
-                    <a href="mailto:<?= $e($q['email']) ?>"><?= $e($q['email']) ?></a>
-                    <?php if ($q['phone']): ?> · <?= $e($q['phone']) ?><?php endif; ?>
+                    <a href="mailto:<?= $escape($inquiry['email']) ?>"><?= $escape($inquiry['email']) ?></a>
+                    <?php if ($inquiry['phone']): ?> · <?= $escape($inquiry['phone']) ?><?php endif; ?>
                 </span>
                 <div class="inquiry-actions">
-                    <?php if (!$archivedView && !$q['is_read']): ?>
-                    <form method="post" action="<?= $e($formAction) ?>">
+                    <?php if (!$archivedView && !$inquiry['is_read']): ?>
+                    <form method="post" action="<?= $escape($formAction) ?>">
                         <?= Csrf::field() ?>
                         <input type="hidden" name="_action" value="read">
-                        <input type="hidden" name="id" value="<?= (int) $q['id'] ?>">
+                        <input type="hidden" name="id" value="<?= (int) $inquiry['id'] ?>">
                         <button class="ghost" type="submit">Přečteno</button>
                     </form>
                     <?php endif; ?>
-                    <form method="post" action="<?= $e($formAction) ?>">
+                    <form method="post" action="<?= $escape($formAction) ?>">
                         <?= Csrf::field() ?>
                         <input type="hidden" name="_action" value="<?= $archivedView ? 'unarchive' : 'archive' ?>">
-                        <input type="hidden" name="id" value="<?= (int) $q['id'] ?>">
+                        <input type="hidden" name="id" value="<?= (int) $inquiry['id'] ?>">
                         <button class="ghost" type="submit"><?= $archivedView ? 'Obnovit' : 'Archivovat' ?></button>
                     </form>
                     <?php if ($archivedView): ?>
-                    <form method="post" action="<?= $e($formAction) ?>" onsubmit="return confirm('Opravdu NEVRATNĚ smazat tuto poptávku? Jméno, e-mail, telefon i zpráva budou trvale ztraceny. Tuto akci nelze vzít zpět.')">
+                    <form method="post" action="<?= $escape($formAction) ?>" onsubmit="return confirm('Opravdu NEVRATNĚ smazat tuto poptávku? Jméno, e-mail, telefon i zpráva budou trvale ztraceny. Tuto akci nelze vzít zpět.')">
                         <?= Csrf::field() ?>
                         <input type="hidden" name="_action" value="delete">
-                        <input type="hidden" name="id" value="<?= (int) $q['id'] ?>">
+                        <input type="hidden" name="id" value="<?= (int) $inquiry['id'] ?>">
                         <button class="danger" type="submit">Smazat</button>
                     </form>
                     <?php endif; ?>
                 </div>
             </div>
-            <div class="inquiry-message"><?= $e($q['message']) ?></div>
+            <div class="inquiry-message"><?= $escape($inquiry['message']) ?></div>
         </div>
     <?php endforeach; ?>
 </div>
