@@ -13,6 +13,7 @@ $navigation = [
     'portfolio' => 'Portfolio',
     'settings' => 'Nastavení',
     'security' => 'Bezpečnost',
+    'account' => 'Účet',
 ];
 $current = trim(str_replace('/admin', '', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: ''), '/') ?: 'dashboard';
 $escape = static fn (?string $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');

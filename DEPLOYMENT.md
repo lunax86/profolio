@@ -244,6 +244,11 @@ Přihlas se na `https://example.com/admin` (údaje z `.env`) a nastav:
 - **Ikona webu (favicon)** - nahraj vlastní PNG (jinak zůstane výchozí)
 - **Zásady ochrany osobních údajů (GDPR)** - uprav text a doplň údaje firmy (IČO, sídlo)
 - **Služby**, **Portfolio** - obsah webu
+- **Účet** - změna hesla/e-mailu; správce webu (super admin) může přidat další účty
+
+> **Super admin:** při upgradu stávajícího webu `migrate.php` povýší nejstarší účet na
+> super admina (spravuje ostatní účty, nelze ho smazat). Nového super admina nelze
+> vytvořit z UI.
 
 ---
 

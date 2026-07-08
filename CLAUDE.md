@@ -58,6 +58,7 @@ Obsah spravuje administrace přes tabulku `site_settings` (**key/value**); `GET 
 - **SEO**: `SeoRenderer` + nastavení `seo_title`/`seo_description`/`seo_image`/`seo_index` (přepínač indexování ovládá i `robots.txt`).
 - **GDPR**: `privacy_policy` (editovatelný text v Nastavení) → modál na frontendu + info u formuláře.
 - **Login**: rate-limit (`RateLimiter::tooMany`/`record`, 5 neúspěchů / 15 min na IP).
+- **Admin účty** (`admin_users`, sekce Účet): dvě role přes sloupec `is_super`. Super admin (účet ze seedu, nelze smazat) spravuje ostatní; běžný admin mění jen svoje heslo/e-mail. Každý mění svůj účet po zadání současného hesla. Migrace povýší nejstarší účet na super admina, když žádný není.
 
 Migrace (`database/migrate.php`) je **idempotentní** - nové sloupce se přidávají přes `PRAGMA table_info` + `ALTER TABLE`, výchozí nastavení přes `INSERT OR IGNORE`, takže lze bezpečně spouštět opakovaně.
 

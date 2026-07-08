@@ -192,6 +192,100 @@ switch ($action) {
         ], 'Bezpečnost');
         break;
 
+    case 'account':
+        $users = new AdminUserRepository();
+        $currentUser = $users->findById((int) Auth::user()['id']);
+        if ($currentUser === null) {
+            Auth::logout();
+            $redirect('login');
+        }
+        $isSuper = (int) $currentUser['is_super'] === 1;
+
+        if ($method === 'POST') {
+            $verifyCsrf();
+            $formAction = $post('_action');
+
+            if ($formAction === 'change_password') {
+                if (!password_verify((string) $post('current_password'), $currentUser['password_hash'])) {
+                    $redirect('account?err=' . rawurlencode('Současné heslo není správné.'));
+                }
+                $newPassword = (string) $post('new_password');
+                if (mb_strlen($newPassword) < 8) {
+                    $redirect('account?err=' . rawurlencode('Nové heslo musí mít alespoň 8 znaků.'));
+                }
+                if ($newPassword !== (string) $post('new_password_confirm')) {
+                    $redirect('account?err=' . rawurlencode('Nová hesla se neshodují.'));
+                }
+                $users->updatePassword((int) $currentUser['id'], password_hash($newPassword, PASSWORD_DEFAULT));
+                $redirect('account?ok=' . rawurlencode('Heslo bylo změněno.'));
+            }
+
+            if ($formAction === 'change_email') {
+                if (!password_verify((string) $post('current_password'), $currentUser['password_hash'])) {
+                    $redirect('account?err=' . rawurlencode('Současné heslo není správné.'));
+                }
+                $newEmail = trim((string) $post('new_email'));
+                if (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+                    $redirect('account?err=' . rawurlencode('Neplatný e-mail.'));
+                }
+                if ($users->emailExists($newEmail, (int) $currentUser['id'])) {
+                    $redirect('account?err=' . rawurlencode('Tento e-mail už používá jiný účet.'));
+                }
+                $users->updateEmail((int) $currentUser['id'], $newEmail);
+                $_SESSION['admin_email'] = $newEmail;
+                $redirect('account?ok=' . rawurlencode('E-mail byl změněn.'));
+            }
+
+            // Správu ostatních účtů smí jen super admin (ověřeno na serveru, ne jen skrytím tlačítek).
+            if (!$isSuper) {
+                http_response_code(403);
+                exit('Nedostatečná oprávnění.');
+            }
+
+            if ($formAction === 'add') {
+                $newEmail = trim((string) $post('email'));
+                $newPassword = (string) $post('password');
+                if (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+                    $redirect('account?err=' . rawurlencode('Neplatný e-mail.'));
+                }
+                if (mb_strlen($newPassword) < 8) {
+                    $redirect('account?err=' . rawurlencode('Heslo správce musí mít alespoň 8 znaků.'));
+                }
+                if ($users->emailExists($newEmail)) {
+                    $redirect('account?err=' . rawurlencode('Tento e-mail už používá jiný účet.'));
+                }
+                $users->create($newEmail, password_hash($newPassword, PASSWORD_DEFAULT), false);
+                $redirect('account?ok=' . rawurlencode('Správce byl přidán.'));
+            }
+
+            if ($formAction === 'delete') {
+                $targetId = (int) $post('id');
+                $target = $users->findById($targetId);
+                if ($target === null) {
+                    $redirect('account?err=' . rawurlencode('Účet neexistuje.'));
+                }
+                if ((int) $target['is_super'] === 1) {
+                    $redirect('account?err=' . rawurlencode('Super admina nelze smazat.'));
+                }
+                if ($targetId === (int) $currentUser['id']) {
+                    $redirect('account?err=' . rawurlencode('Nelze smazat vlastní účet.'));
+                }
+                $users->delete($targetId);
+                $redirect('account?ok=' . rawurlencode('Správce byl smazán.'));
+            }
+
+            $redirect('account');
+        }
+
+        $render('account', [
+            'currentUser' => $currentUser,
+            'isSuper' => $isSuper,
+            'admins' => $users->all(),
+            'ok' => isset($_GET['ok']) ? (string) $_GET['ok'] : null,
+            'err' => isset($_GET['err']) ? (string) $_GET['err'] : null,
+        ], 'Účet');
+        break;
+
     case 'dashboard':
     default:
         $version = ['current' => Version::current(), 'latest' => null, 'slug' => Version::repoSlug(), 'upToDate' => null, 'error' => null, 'checked' => false];

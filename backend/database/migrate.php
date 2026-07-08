@@ -87,6 +87,22 @@ if (!in_array('is_archived', $inquiryColumns, true)) {
     echo "Přidán sloupec inquiries.is_archived.\n";
 }
 
+// Role admina: is_super (super admin spravuje ostatní účty). Idempotentní.
+$adminColumns = array_column($pdo->query('PRAGMA table_info(admin_users)')->fetchAll(), 'name');
+if (!in_array('is_super', $adminColumns, true)) {
+    $pdo->exec('ALTER TABLE admin_users ADD COLUMN is_super INTEGER NOT NULL DEFAULT 0');
+    echo "Přidán sloupec admin_users.is_super.\n";
+}
+// Když ještě žádný super admin není (i po upgradu staré DB), povýšit nejstarší účet.
+$hasSuperAdmin = (int) $pdo->query('SELECT COUNT(*) FROM admin_users WHERE is_super = 1')->fetchColumn() > 0;
+if (!$hasSuperAdmin) {
+    $oldestAdminId = $pdo->query('SELECT id FROM admin_users ORDER BY id LIMIT 1')->fetchColumn();
+    if ($oldestAdminId !== false) {
+        $pdo->prepare('UPDATE admin_users SET is_super = 1 WHERE id = ?')->execute([(int) $oldestAdminId]);
+        echo "Nejstarší admin povýšen na super admina.\n";
+    }
+}
+
 // Výchozí text zásad ochrany osobních údajů - jen pokud ještě není nastaven.
 $privacyDefault = <<<'TXT'
 Zásady ochrany osobních údajů

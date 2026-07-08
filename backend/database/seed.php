@@ -18,8 +18,8 @@ $pdo = Database::connection();
 $users = new AdminUserRepository();
 $email = (string) Config::get('ADMIN_EMAIL', 'admin@example.com');
 if ($users->findByEmail($email) === null) {
-    $users->create($email, password_hash((string) Config::get('ADMIN_PASSWORD', 'admin123'), PASSWORD_DEFAULT));
-    echo "Vytvořen admin: {$email}\n";
+    $users->create($email, password_hash((string) Config::get('ADMIN_PASSWORD', 'admin123'), PASSWORD_DEFAULT), true);
+    echo "Vytvořen super admin: {$email}\n";
 }
 
 // --- Nastavení webu ---
