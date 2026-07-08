@@ -18,7 +18,7 @@ final class PageViewRepository
         $this->pdo = Database::connection();
     }
 
-    /** Zaznamená návštěvníka pro daný den – jen jednou (INSERT OR IGNORE na den+hash). */
+    /** Zaznamená návštěvníka pro daný den - jen jednou (INSERT OR IGNORE na den+hash). */
     public function record(string $day, string $visitorHash): void
     {
         $this->pdo

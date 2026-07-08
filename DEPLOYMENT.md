@@ -1,9 +1,14 @@
+[← Zpět na README](./README.md)
+
 # Nasazení (deployment)
 
 Návod, jak nasadit tento projekt (PHP 8.2 + SQLite backend, React frontend) na linuxový
 server s **Apache + PHP-FPM**. Frontend i backend běží na **jedné doméně** (stejný origin,
 žádné CORS): statický React build servíruje Apache, cesty `/api`, `/admin`, `/uploads`,
 `/swagger` a všechny „stránky" (kvůli SEO meta) jdou přes PHP.
+
+Lokální vývoj je v [DEVELOPMENT.md](./DEVELOPMENT.md), provoz po nasazení
+v [RUNBOOK.md](./RUNBOOK.md).
 
 > V celém návodu jsou **vzorové hodnoty**. Nahraď si je svými:
 > - `example.com` → tvoje doména
@@ -85,7 +90,7 @@ ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=<zvol silné heslo>
 ```
 
-**Databáze** – teprve **s hotovým `.env`** vytvoř schéma a naplň výchozí obsah. Seed založí
+**Databáze** - teprve **s hotovým `.env`** vytvoř schéma a naplň výchozí obsah. Seed založí
 admina podle `ADMIN_EMAIL`/`ADMIN_PASSWORD` z `.env`, takže pořadí je důležité:
 
 ```bash
@@ -94,7 +99,7 @@ php database/migrate.php      # vytvoří schéma
 php database/seed.php         # vytvoří admina (dle .env) + demo obsah
 ```
 
-**Práva pro zápis** – web server (`www-data`) musí umět zapisovat do databáze a nahraných
+**Práva pro zápis** - web server (`www-data`) musí umět zapisovat do databáze a nahraných
 souborů; `.env` naopak jen číst:
 
 ```bash
@@ -120,7 +125,7 @@ npm run build     # výstup → frontend/dist/
 
 ---
 
-## 5. Apache – virtuální host
+## 5. Apache - virtuální host
 
 Frontend je `DocumentRoot`, backend se volá přes rewrite. Vytvoř
 `/etc/apache2/sites-available/example.com.conf`:
@@ -137,7 +142,7 @@ Frontend je `DocumentRoot`, backend se volá přes rewrite. Vytvoř
         Require all granted
     </Directory>
 
-    # PHP backend leží mimo DocumentRoot – povolit jeho spuštění
+    # PHP backend leží mimo DocumentRoot - povolit jeho spuštění
     <Directory /var/www/example.com/backend/public>
         Require all granted
     </Directory>
@@ -233,22 +238,22 @@ sudo systemctl reload php8.2-fpm
 
 Přihlas se na `https://example.com/admin` (údaje z `.env`) a nastav:
 
-- **Nastavení** – název, slogan, kontakt, úvodní fotka, sociální sítě
-- **SEO** – SEO titulek/popis, obrázek pro sdílení, přepínač **Indexování** (na testovacím
+- **Nastavení** - název, slogan, kontakt, úvodní fotka, sociální sítě
+- **SEO** - SEO titulek/popis, obrázek pro sdílení, přepínač **Indexování** (na testovacím
   webu klidně „Ne", na ostrém „Ano")
-- **Ikona webu (favicon)** – nahraj vlastní PNG (jinak zůstane výchozí)
-- **Zásady ochrany osobních údajů (GDPR)** – uprav text a doplň údaje firmy (IČO, sídlo)
-- **Služby**, **Portfolio** – obsah webu
+- **Ikona webu (favicon)** - nahraj vlastní PNG (jinak zůstane výchozí)
+- **Zásady ochrany osobních údajů (GDPR)** - uprav text a doplň údaje firmy (IČO, sídlo)
+- **Služby**, **Portfolio** - obsah webu
 
 ---
 
 ## 10. Provoz
 
-- **Zálohy databáze** – `backend/database/database.sqlite` obsahuje veškerý obsah i přijaté
+- **Zálohy databáze** - `backend/database/database.sqlite` obsahuje veškerý obsah i přijaté
   poptávky. Doporučeno pravidelně zálohovat (např. denní `cron`, který soubor kopíruje stranou
   a rotuje posledních N dní).
-- **Reset rate-limitu** – kdyby ses zamkl při přihlašování (nebo pro test), smaž počítadla:
+- **Reset rate-limitu** - kdyby ses zamkl při přihlašování (nebo pro test), smaž počítadla:
   `rm -f backend/storage/ratelimit/*.json`
-- **Logy** – `${APACHE_LOG_DIR}/example.com_error.log` a `..._access.log`.
-- **Skrytí Swaggeru** – při `APP_ENV=production` je `/swagger` i `/api/openapi.json` vypnutý
+- **Logy** - `${APACHE_LOG_DIR}/example.com_error.log` a `..._access.log`.
+- **Skrytí Swaggeru** - při `APP_ENV=production` je `/swagger` i `/api/openapi.json` vypnutý
   (vrací 404); dostupné je jen v lokálním vývoji.

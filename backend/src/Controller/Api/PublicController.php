@@ -78,8 +78,8 @@ final class PublicController
     {
         $data = $request->all();
 
-        // Anti-spam 1: honeypot – skryté pole "website" musí zůstat prázdné.
-        // Anti-spam 2: time-trap – formulář odeslaný dřív než za 2 s je nejspíš bot.
+        // Anti-spam 1: honeypot - skryté pole "website" musí zůstat prázdné.
+        // Anti-spam 2: time-trap - formulář odeslaný dřív než za 2 s je nejspíš bot.
         // U obou se tváříme úspěšně, ale nic neuložíme (neprozrazujeme detekci).
         $elapsed = (float) ($data['elapsed'] ?? 0);
         if (trim((string) ($data['website'] ?? '')) !== '' || ($elapsed > 0 && $elapsed < 2)) {

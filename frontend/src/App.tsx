@@ -16,7 +16,7 @@ export default function App() {
     const [privacyOpen, setPrivacyOpen] = useState(false);
 
     useEffect(() => {
-        // návštěvnost – jednou za relaci prohlížeče
+        // návštěvnost - jednou za relaci prohlížeče
         if (!sessionStorage.getItem('hit')) {
             sessionStorage.setItem('hit', '1');
             api.hit();

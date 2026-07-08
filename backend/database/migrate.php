@@ -87,7 +87,7 @@ if (!in_array('is_archived', $inquiryColumns, true)) {
     echo "Přidán sloupec inquiries.is_archived.\n";
 }
 
-// Výchozí text zásad ochrany osobních údajů – jen pokud ještě není nastaven.
+// Výchozí text zásad ochrany osobních údajů - jen pokud ještě není nastaven.
 $privacyDefault = <<<'TXT'
 Zásady ochrany osobních údajů
 

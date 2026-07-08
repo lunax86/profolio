@@ -64,18 +64,18 @@ $setting = static fn (string $key): string => htmlspecialchars((string) ($settin
 
         <label>SEO titulek <span style="font-weight:400;color:#94a3b8;">(ideálně do ~60 znaků)</span></label>
         <input type="text" name="seo_title" maxlength="70" value="<?= $setting('seo_title') ?>"
-               placeholder="<?= $setting('site_title') ?><?= $settings['hero_slogan'] ?? '' ? ' – ' . $setting('hero_slogan') : '' ?>">
+               placeholder="<?= $setting('site_title') ?><?= $settings['hero_slogan'] ?? '' ? ' - ' . $setting('hero_slogan') : '' ?>">
 
         <label>SEO popis <span style="font-weight:400;color:#94a3b8;">(ideálně do ~155 znaků)</span></label>
         <textarea name="seo_description" rows="3" maxlength="180" placeholder="<?= $setting('hero_slogan') ?>"><?= $setting('seo_description') ?></textarea>
 
-        <label>Obrázek pro sdílení – URL <span style="font-weight:400;color:#94a3b8;">(fallback: úvodní fotka)</span></label>
+        <label>Obrázek pro sdílení - URL <span style="font-weight:400;color:#94a3b8;">(fallback: úvodní fotka)</span></label>
         <input type="url" name="seo_image" value="<?= $setting('seo_image') ?>" placeholder="<?= $setting('hero_image') ?>">
 
         <label>Indexování vyhledávači</label>
         <select name="seo_index">
-            <option value="1" <?= ($settings['seo_index'] ?? '1') !== '0' ? 'selected' : '' ?>>Ano – web se smí zobrazovat ve vyhledávání</option>
-            <option value="0" <?= ($settings['seo_index'] ?? '1') === '0' ? 'selected' : '' ?>>Ne – skrýt web před vyhledávači (noindex)</option>
+            <option value="1" <?= ($settings['seo_index'] ?? '1') !== '0' ? 'selected' : '' ?>>Ano - web se smí zobrazovat ve vyhledávání</option>
+            <option value="0" <?= ($settings['seo_index'] ?? '1') === '0' ? 'selected' : '' ?>>Ne - skrýt web před vyhledávači (noindex)</option>
         </select>
     </div>
     <div class="card">

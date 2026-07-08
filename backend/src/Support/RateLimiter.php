@@ -6,7 +6,7 @@ namespace App\Support;
 
 /**
  * Jednoduchý souborový rate-limiter (klouzavé okno).
- * Bez DB – stav se drží v malých JSON souborech, jeden na klíč (např. IP).
+ * Bez DB - stav se drží v malých JSON souborech, jeden na klíč (např. IP).
  */
 final class RateLimiter
 {

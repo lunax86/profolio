@@ -20,7 +20,7 @@ final class SeoRenderer
         $slogan = self::settingValue($settings, 'hero_slogan', self::settingValue($settings, 'hero_title', ''));
 
         // Přednost mají vlastní SEO pole z administrace, jinak se odvodí z názvu/sloganu.
-        $derivedTitle = $slogan !== '' ? $siteTitle . ' – ' . $slogan : $siteTitle;
+        $derivedTitle = $slogan !== '' ? $siteTitle . ' - ' . $slogan : $siteTitle;
         $title = self::settingValue($settings, 'seo_title', $derivedTitle);
         $description = self::settingValue($settings, 'seo_description', $slogan !== '' ? $slogan : $siteTitle);
         $robots = ($settings['seo_index'] ?? '1') === '0' ? 'noindex,nofollow' : 'index,follow';

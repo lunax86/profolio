@@ -70,7 +70,7 @@ final class InquiryRepository
             ->execute([$archived ? 1 : 0, $id]);
     }
 
-    /** Trvale smaže poptávku – jen pokud je archivovaná (pojistka proti smazání aktivní). */
+    /** Trvale smaže poptávku - jen pokud je archivovaná (pojistka proti smazání aktivní). */
     public function deleteArchived(int $id): void
     {
         $this->pdo

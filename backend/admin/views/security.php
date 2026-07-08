@@ -24,7 +24,7 @@ $checklist = [
     'HTTPS (šifrované spojení)' => $status['https'],
     'Session cookie: HttpOnly' => $status['httpOnly'],
     'Session cookie: Secure' => $status['secure'],
-    'Session cookie: SameSite = ' . ($status['sameSite'] !== '' ? $status['sameSite'] : '—') => $status['sameSite'] !== '',
+    'Session cookie: SameSite = ' . ($status['sameSite'] !== '' ? $status['sameSite'] : '-') => $status['sameSite'] !== '',
     'Rate-limit přihlášení (5 pokusů / 15 min)' => true,
     'CSRF ochrana formulářů' => true,
 ];
@@ -40,14 +40,14 @@ $periodLabels = ['24h' => '24 hodin', '7d' => '7 dní', '30d' => '30 dní'];
         <?php endforeach; ?>
     </ul>
     <p style="color:#64748b;font-size:.8rem;margin-top:.5rem;">
-        Bezpečnostní hlavičky (HSTS, X-Frame-Options…) se nastavují v Apache – viz RUNBOOK.
+        Bezpečnostní hlavičky (HSTS, X-Frame-Options…) se nastavují v Apache - viz RUNBOOK.
     </p>
 </div>
 
 <div class="card">
     <h2 style="margin-top:0;font-size:1.1rem;">Aktuálně blokované IP</h2>
     <p style="color:#64748b;font-size:.85rem;margin:.25rem 0 .5rem;">
-        Adresy s ≥ 5 neúspěšnými pokusy za posledních 15 minut – rate-limiter je právě blokuje.
+        Adresy s ≥ 5 neúspěšnými pokusy za posledních 15 minut - rate-limiter je právě blokuje.
     </p>
     <?php if ($blockedIps === []): ?>
         <p>Žádné. 👍</p>

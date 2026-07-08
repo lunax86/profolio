@@ -34,9 +34,9 @@ export interface InquiryPayload {
     email: string;
     phone?: string;
     message?: string;
-    /** honeypot – skryté pole, člověk ho nechá prázdné */
+    /** honeypot - skryté pole, člověk ho nechá prázdné */
     website?: string;
-    /** time-trap – sekundy od načtení formuláře */
+    /** time-trap - sekundy od načtení formuláře */
     elapsed?: number;
 }
 
@@ -50,7 +50,7 @@ export const api = {
     settings: () => get<SiteSettings>('/api/settings'),
     services: () => get<Service[]>('/api/services'),
     portfolio: () => get<PortfolioItem[]>('/api/portfolio'),
-    /** Anonymní záznam návštěvy – bez čekání na odpověď, chyby ignorujeme. */
+    /** Anonymní záznam návštěvy - bez čekání na odpověď, chyby ignorujeme. */
     hit: (): void => {
         void fetch('/api/hit', { method: 'POST' }).catch(() => {});
     },

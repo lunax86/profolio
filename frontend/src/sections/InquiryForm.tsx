@@ -13,7 +13,7 @@ const schema = z.object({
     email: z.string().email('Neplatný e-mail'),
     phone: z.string().optional(),
     message: z.string().optional(),
-    // honeypot – skryté pole; člověk ho nechá prázdné, bot ho vyplní
+    // honeypot - skryté pole; člověk ho nechá prázdné, bot ho vyplní
     website: z.string().optional(),
 });
 
@@ -76,7 +76,7 @@ export function InquiryForm({ onOpenPrivacy }: { onOpenPrivacy: () => void }) {
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-                            {/* honeypot – neviditelné pole; člověk ho nevidí, bot ho vyplní */}
+                            {/* honeypot - neviditelné pole; člověk ho nevidí, bot ho vyplní */}
                             <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
                                 <label htmlFor="website">Nevyplňujte</label>
                                 <input

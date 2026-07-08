@@ -10,7 +10,7 @@ use App\Support\Csrf;
  * @var int  $archivedCount
  */
 $escape = static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
-/** created_at je v DB uložený v UTC – zobraz ho v pražském čase. */
+/** created_at je v DB uložený v UTC - zobraz ho v pražském čase. */
 $formatDate = static function ($utc): string {
     try {
         return (new DateTimeImmutable((string) $utc, new DateTimeZone('UTC')))
