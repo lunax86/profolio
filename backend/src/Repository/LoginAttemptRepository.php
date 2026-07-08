@@ -18,6 +18,10 @@ final class LoginAttemptRepository
 
     public function record(string $email, string $ip, bool $success): void
     {
+        // Ořízni délku před zápisem, ať nelze log nafouknout obřím vstupem z login pole.
+        // 254 = max délka platné e-mailové adresy dle RFC 5321; 45 = max délka IPv6 se zónou.
+        $email = mb_substr($email, 0, 254);
+        $ip = mb_substr($ip, 0, 45);
         $this->pdo
             ->prepare('INSERT INTO login_attempts (email, ip, success) VALUES (?, ?, ?)')
             ->execute([$email, $ip, $success ? 1 : 0]);
