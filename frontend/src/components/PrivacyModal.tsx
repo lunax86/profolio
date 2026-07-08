@@ -33,24 +33,29 @@ export function PrivacyModal({ open, onClose, text }: PrivacyModalProps) {
             aria-label="Zásady ochrany osobních údajů"
         >
             <div
-                className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-lg border border-border bg-card p-6 shadow-xl sm:p-8"
+                className="flex max-h-[85dvh] w-full max-w-2xl flex-col overflow-hidden rounded-lg border border-border bg-card shadow-xl"
                 onClick={(event) => event.stopPropagation()}
             >
-                <button
-                    type="button"
-                    onClick={onClose}
-                    aria-label="Zavřít"
-                    className="absolute right-4 top-4 text-muted-foreground transition-colors hover:text-foreground"
-                >
-                    <Icon name="x" className="h-5 w-5" />
-                </button>
-                {text ? (
-                    <div className="whitespace-pre-line text-sm leading-relaxed text-foreground">{text}</div>
-                ) : (
-                    <p className="text-sm text-muted-foreground">
-                        Zásady ochrany osobních údajů zatím nebyly vyplněny.
-                    </p>
-                )}
+                {/* Hlavička s křížkem zůstává nahoře i při rolování obsahu */}
+                <div className="flex shrink-0 justify-end border-b border-border p-3">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        aria-label="Zavřít"
+                        className="-m-1 p-1 text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                        <Icon name="x" className="h-6 w-6" />
+                    </button>
+                </div>
+                <div className="min-h-0 overflow-y-auto p-6 sm:p-8">
+                    {text ? (
+                        <div className="whitespace-pre-line text-sm leading-relaxed text-foreground">{text}</div>
+                    ) : (
+                        <p className="text-sm text-muted-foreground">
+                            Zásady ochrany osobních údajů zatím nebyly vyplněny.
+                        </p>
+                    )}
+                </div>
             </div>
         </div>
     );
