@@ -64,7 +64,7 @@ export function InquiryForm({ onOpenPrivacy }: { onOpenPrivacy: () => void }) {
                     </ul>
                 </div>
 
-                <div className="rounded-lg border border-border bg-card p-8 shadow-sm">
+                <div className="rounded-lg border border-border bg-card p-5 shadow-sm sm:p-8">
                     {sent ? (
                         <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
                             <Icon name="party-popper" className="h-12 w-12 text-primary" />
