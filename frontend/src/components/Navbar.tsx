@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Icon } from './Icon';
 import { Button } from './ui/button';
 import { useTheme } from '@/lib/theme';
@@ -16,6 +16,7 @@ export function Navbar({ settings }: { settings: SiteSettings }) {
     const { theme, toggle } = useTheme();
     const [scrolled, setScrolled] = useState(false);
     const [open, setOpen] = useState(false);
+    const headerRef = useRef<HTMLElement>(null);
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 20);
@@ -24,8 +25,21 @@ export function Navbar({ settings }: { settings: SiteSettings }) {
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
 
+    // Zavři mobilní menu při kliknutí/ťuknutí mimo hlavičku.
+    useEffect(() => {
+        if (!open) return;
+        const onPointerDown = (event: PointerEvent) => {
+            if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener('pointerdown', onPointerDown);
+        return () => document.removeEventListener('pointerdown', onPointerDown);
+    }, [open]);
+
     return (
         <header
+            ref={headerRef}
             className={cn(
                 'fixed inset-x-0 top-0 z-50 transition-all duration-300',
                 scrolled ? 'border-b border-border bg-background/85 backdrop-blur' : 'bg-transparent',
