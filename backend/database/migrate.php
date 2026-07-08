@@ -80,6 +80,15 @@ $pdo->exec(<<<'SQL'
     );
 SQL);
 
+// Interní (neveřejné) nastavení - secrets jako SMTP. Záměrně mimo site_settings,
+// aby se nedostalo do veřejného GET /api/settings.
+$pdo->exec(<<<'SQL'
+    CREATE TABLE IF NOT EXISTS private_settings (
+        key   TEXT PRIMARY KEY,
+        value TEXT
+    );
+SQL);
+
 // Idempotentní doplnění nových sloupců u již existujících databází.
 $inquiryColumns = array_column($pdo->query('PRAGMA table_info(inquiries)')->fetchAll(), 'name');
 if (!in_array('is_archived', $inquiryColumns, true)) {
@@ -134,5 +143,11 @@ $pdo->prepare("INSERT OR IGNORE INTO site_settings (key, value) VALUES ('privacy
 // Výchozí časová zóna webu - jen pokud ještě není nastavena.
 $pdo->prepare("INSERT OR IGNORE INTO site_settings (key, value) VALUES ('timezone', ?)")
     ->execute(['Europe/Prague']);
+
+// Výchozí hodnoty SMTP - jen pokud ještě nejsou nastaveny.
+foreach (['smtp_port' => '587', 'smtp_encryption' => 'tls'] as $smtpKey => $smtpDefault) {
+    $pdo->prepare('INSERT OR IGNORE INTO private_settings (key, value) VALUES (?, ?)')
+        ->execute([$smtpKey, $smtpDefault]);
+}
 
 echo "Migrace dokončeny.\n";

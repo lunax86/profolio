@@ -8,10 +8,12 @@ use App\Repository\InquiryRepository;
 use App\Repository\LoginAttemptRepository;
 use App\Repository\PageViewRepository;
 use App\Repository\PortfolioRepository;
+use App\Repository\PrivateSettingRepository;
 use App\Repository\ServiceRepository;
 use App\Repository\SettingRepository;
 use App\Support\Auth;
 use App\Support\Csrf;
+use App\Support\Mailer;
 use App\Support\RateLimiter;
 use App\Support\Uploader;
 use App\Support\Version;
@@ -190,6 +192,50 @@ switch ($action) {
                 'sameSite' => (string) ($cookieParams['samesite'] ?? ''),
             ],
         ], 'Bezpečnost');
+        break;
+
+    case 'smtp':
+        $privateSettings = new PrivateSettingRepository();
+        if ($method === 'POST') {
+            $verifyCsrf();
+
+            if ($post('_action') === 'test') {
+                $testEmail = trim((string) $post('test_email'));
+                if (!filter_var($testEmail, FILTER_VALIDATE_EMAIL)) {
+                    $redirect('smtp?err=' . rawurlencode('Zadejte platnou e-mailovou adresu pro test.'));
+                }
+                try {
+                    (new Mailer())->sendTest($testEmail);
+                    $redirect('smtp?ok=' . rawurlencode('Testovací e-mail odeslán na ' . $testEmail . '.'));
+                } catch (\Throwable $exception) {
+                    $redirect('smtp?err=' . rawurlencode('Odeslání selhalo: ' . $exception->getMessage()));
+                }
+            }
+
+            // _action === 'save'
+            $port = (int) $post('smtp_port');
+            $encryption = (string) $post('smtp_encryption');
+            $data = [
+                'smtp_host' => trim((string) $post('smtp_host')),
+                'smtp_port' => (string) ($port > 0 ? $port : 587),
+                'smtp_encryption' => in_array($encryption, ['tls', 'ssl', ''], true) ? $encryption : 'tls',
+                'smtp_username' => trim((string) $post('smtp_username')),
+                'smtp_from_email' => trim((string) $post('smtp_from_email')),
+                'smtp_from_name' => trim((string) $post('smtp_from_name')),
+            ];
+            // Heslo přepiš jen když je pole vyplněné (prázdné = ponechat stávající).
+            $newPassword = (string) $post('smtp_password');
+            if ($newPassword !== '') {
+                $data['smtp_password'] = $newPassword;
+            }
+            $privateSettings->setMany($data);
+            $redirect('smtp?ok=' . rawurlencode('Nastavení SMTP bylo uloženo.'));
+        }
+        $render('smtp', [
+            'config' => $privateSettings->all(),
+            'ok' => isset($_GET['ok']) ? (string) $_GET['ok'] : null,
+            'err' => isset($_GET['err']) ? (string) $_GET['err'] : null,
+        ], 'SMTP');
         break;
 
     case 'account':
