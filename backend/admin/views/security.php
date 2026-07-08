@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Support\Clock;
+
 /**
  * @var array<int, array<string, mixed>> $attempts
  * @var int $total
@@ -11,15 +13,6 @@ declare(strict_types=1);
  * @var array{https: bool, httpOnly: bool, secure: bool, sameSite: string} $status
  */
 $escape = static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
-$formatDate = static function ($utc): string {
-    try {
-        return (new DateTimeImmutable((string) $utc, new DateTimeZone('UTC')))
-            ->setTimezone(new DateTimeZone('Europe/Prague'))
-            ->format('j. n. Y H:i:s');
-    } catch (\Exception) {
-        return (string) $utc;
-    }
-};
 $checklist = [
     'HTTPS (šifrované spojení)' => $status['https'],
     'Session cookie: HttpOnly' => $status['httpOnly'],
@@ -82,7 +75,7 @@ $periodLabels = ['24h' => '24 hodin', '7d' => '7 dní', '30d' => '30 dní'];
             <tbody>
             <?php foreach ($attempts as $attempt): ?>
                 <tr>
-                    <td style="white-space:nowrap"><?= $escape($formatDate($attempt['created_at'])) ?></td>
+                    <td style="white-space:nowrap"><?= $escape(Clock::formatUtc($attempt['created_at'])) ?></td>
                     <td><?= $escape($attempt['ip']) ?></td>
                     <td><?= $escape($attempt['email']) ?></td>
                     <td><?= $attempt['success']

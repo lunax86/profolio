@@ -12,6 +12,7 @@ use App\Repository\PageViewRepository;
 use App\Repository\PortfolioRepository;
 use App\Repository\ServiceRepository;
 use App\Repository\SettingRepository;
+use App\Support\Clock;
 use App\Support\RateLimiter;
 use App\Support\Validator;
 use OpenApi\Attributes as OA;
@@ -120,7 +121,7 @@ final class PublicController
     )]
     public function hit(Request $request): void
     {
-        $day = (new \DateTimeImmutable('now', new \DateTimeZone('Europe/Prague')))->format('Y-m-d');
+        $day = Clock::today();
 
         // Anonymní otisk návštěvníka: hash z IP + user-agent, solený tajným klíčem a dnem.
         // Sůl obsahuje den → hash se denně mění a IP se nikde neukládá v čitelné podobě.

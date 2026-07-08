@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Support\Clock;
 use App\Support\Csrf;
 
 /**
@@ -12,16 +13,6 @@ use App\Support\Csrf;
  * @var string|null $err
  */
 $escape = static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
-// created_at je v DB v UTC - zobraz ho v pražském čase (stejně jako inquiries/security).
-$formatDateTime = static function ($utc): string {
-    try {
-        return (new DateTimeImmutable((string) $utc, new DateTimeZone('UTC')))
-            ->setTimezone(new DateTimeZone('Europe/Prague'))
-            ->format('j. n. Y H:i');
-    } catch (\Exception) {
-        return (string) $utc;
-    }
-};
 ?>
 <h1>Účet</h1>
 
@@ -86,7 +77,7 @@ $formatDateTime = static function ($utc): string {
             <tr>
                 <td><?= $escape($admin['email']) ?><?= $isSelf ? ' (vy)' : '' ?></td>
                 <td><?= $adminIsSuper ? 'super admin' : 'správce' ?></td>
-                <td><?= $escape($formatDateTime($admin['created_at'])) ?></td>
+                <td><?= $escape(Clock::formatUtc($admin['created_at'])) ?></td>
                 <?php if ($isSuper): ?>
                     <td>
                         <?php if (!$adminIsSuper && !$isSelf): ?>

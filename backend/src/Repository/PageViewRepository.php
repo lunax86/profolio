@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Core\Database;
-use DateTimeImmutable;
-use DateTimeZone;
+use App\Support\Clock;
 use PDO;
 
 final class PageViewRepository
@@ -33,7 +32,7 @@ final class PageViewRepository
      */
     public function stats(int $chartDays = 14): array
     {
-        $now = new DateTimeImmutable('now', new DateTimeZone('Europe/Prague'));
+        $now = Clock::now();
         $today = $now->format('Y-m-d');
         $weekAgo = $now->modify('-6 days')->format('Y-m-d');
         $chartFrom = $now->modify('-' . ($chartDays - 1) . ' days')->format('Y-m-d');

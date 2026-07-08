@@ -131,4 +131,8 @@ TXT;
 $pdo->prepare("INSERT OR IGNORE INTO site_settings (key, value) VALUES ('privacy_policy', ?)")
     ->execute([$privacyDefault]);
 
+// Výchozí časová zóna webu - jen pokud ještě není nastavena.
+$pdo->prepare("INSERT OR IGNORE INTO site_settings (key, value) VALUES ('timezone', ?)")
+    ->execute(['Europe/Prague']);
+
 echo "Migrace dokončeny.\n";

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Support\Clock;
 use App\Support\Csrf;
 
 /**
@@ -10,16 +11,6 @@ use App\Support\Csrf;
  * @var int  $archivedCount
  */
 $escape = static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
-/** created_at je v DB uložený v UTC - zobraz ho v pražském čase. */
-$formatDate = static function ($utc): string {
-    try {
-        return (new DateTimeImmutable((string) $utc, new DateTimeZone('UTC')))
-            ->setTimezone(new DateTimeZone('Europe/Prague'))
-            ->format('j. n. Y H:i');
-    } catch (\Exception) {
-        return (string) $utc;
-    }
-};
 $formAction = '/admin/inquiries' . ($archivedView ? '?archiv=1' : '');
 ?>
 <h1>Poptávky</h1>
@@ -36,7 +27,7 @@ $formAction = '/admin/inquiries' . ($archivedView ? '?archiv=1' : '');
     <?php foreach ($inquiries as $inquiry): ?>
         <div class="inquiry<?= $inquiry['is_read'] ? ' is-read' : '' ?>">
             <div class="inquiry-head">
-                <span class="inquiry-date"><?= $escape($formatDate($inquiry['created_at'])) ?></span>
+                <span class="inquiry-date"><?= $escape(Clock::formatUtc($inquiry['created_at'])) ?></span>
                 <strong class="inquiry-name">
                     <?= $escape($inquiry['name']) ?>
                     <?php if (!$inquiry['is_read'] && !$archivedView): ?><span class="badge">nové</span><?php endif; ?>

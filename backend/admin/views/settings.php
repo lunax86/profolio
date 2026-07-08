@@ -57,6 +57,25 @@ $setting = static fn (string $key): string => htmlspecialchars((string) ($settin
         </div>
     </div>
     <div class="card">
+        <h2 style="margin-top:0;font-size:1.1rem;">Časová zóna</h2>
+        <p style="color:#64748b;font-size:.85rem;margin:.25rem 0 .5rem;">
+            V této zóně se v administraci zobrazují časy (poptávky, přihlášení) a počítá se den u návštěvnosti.
+        </p>
+        <label>Časová zóna webu</label>
+        <select name="timezone">
+            <?php
+            $currentZone = $settings['timezone'] ?? 'Europe/Prague';
+$zones = array_merge(['UTC'], DateTimeZone::listIdentifiers(DateTimeZone::EUROPE));
+$now = new DateTimeImmutable('now');
+foreach ($zones as $zone):
+    $offsetSeconds = (new DateTimeZone($zone))->getOffset($now);
+    $offsetLabel = sprintf('UTC%s%02d:%02d', $offsetSeconds < 0 ? '-' : '+', intdiv(abs($offsetSeconds), 3600), intdiv(abs($offsetSeconds) % 3600, 60));
+    ?>
+                <option value="<?= $escape($zone) ?>"<?= $zone === $currentZone ? ' selected' : '' ?>><?= $escape($zone . ' (' . $offsetLabel . ')') ?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <div class="card">
         <h2 style="margin-top:0;font-size:1.1rem;">SEO a vyhledávače</h2>
         <p style="color:#64748b;font-size:.85rem;margin:.25rem 0 .75rem;">
             Jak se web ukáže ve vyhledávání a při sdílení na sítích. Prázdná pole se doplní automaticky z názvu a sloganu.

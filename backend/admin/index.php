@@ -130,7 +130,7 @@ switch ($action) {
         $repo = new SettingRepository();
         if ($method === 'POST') {
             $verifyCsrf();
-            $keys = ['site_title', 'hero_title', 'hero_slogan', 'hero_image', 'contact_email', 'contact_phone', 'contact_address', 'social_facebook', 'social_instagram', 'privacy_policy', 'seo_title', 'seo_description', 'seo_image', 'seo_index'];
+            $keys = ['site_title', 'hero_title', 'hero_slogan', 'hero_image', 'contact_email', 'contact_phone', 'contact_address', 'social_facebook', 'social_instagram', 'privacy_policy', 'seo_title', 'seo_description', 'seo_image', 'seo_index', 'timezone'];
             $repo->setMany(array_intersect_key($_POST, array_flip($keys)));
 
             if ($post('favicon_remove')) {
