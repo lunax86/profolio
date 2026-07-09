@@ -88,6 +88,33 @@ find "$DEST" -name 'database-*.sqlite' -mtime +14 -delete
 
 ---
 
+## Prohlížení databáze
+
+**Rychlý pohled z terminálu** (read-only, nic nerozbije):
+
+```bash
+cd /var/www/example.com/backend
+sqlite3 -readonly database/database.sqlite
+# v promptu:  .headers on   .mode box   .tables   SELECT * FROM inquiries;   .quit
+```
+
+**Přehledné TUI** (strom tabulek, procházení šipkami) přes `harlequin`:
+
+```bash
+# jednorázová instalace (izolovaně, nerozbije systémový Python - Raspbian má PEP 668):
+sudo apt install pipx
+pipx install harlequin
+pipx ensurepath          # přidá ~/.local/bin do PATH; projeví se v novém terminálu
+
+# spuštění (-r = read-only):
+cd /var/www/example.com/backend
+harlequin -r database/database.sqlite
+```
+
+> Editace živé DB jen se **zálohou** (viz výše) a přes `sqlite3` bez `-readonly`, ne naslepo v produkci.
+
+---
+
 ## Užitečné příkazy
 
 ```bash
