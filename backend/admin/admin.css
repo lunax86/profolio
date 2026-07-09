@@ -20,6 +20,10 @@
     --accent-grad: linear-gradient(135deg, #4f46e5, #6d5efc);
     --ring: rgba(79, 70, 229, 0.32);
 
+    /* Kategorická paleta pro donuty (validováno na CVD, světlá varianta). */
+    --cat-1: #2a78d6; --cat-2: #1baf7a; --cat-3: #eda100; --cat-4: #008300;
+    --cat-5: #4a3aa7; --cat-6: #e34948; --cat-7: #e87ba4; --cat-8: #eb6834;
+
     --good: #15803d;   --good-bg: #dcfce7;
     --warn: #b45309;   --warn-bg: #fef3c7;
     --bad: #b91c1c;    --bad-bg: #fee2e2;
@@ -54,6 +58,8 @@
         --accent: #6d5efc;
         --accent-ink: #a5a0ff;
         --ring: rgba(109, 94, 252, 0.38);
+        --cat-1: #3987e5; --cat-2: #199e70; --cat-3: #c98500; --cat-4: #008300;
+        --cat-5: #9085e9; --cat-6: #e66767; --cat-7: #d55181; --cat-8: #d95926;
         --good: #4ade80; --good-bg: #12291d;
         --warn: #fbbf24; --warn-bg: #2a2110;
         --bad: #f87171;  --bad-bg: #2a1414;
@@ -73,6 +79,7 @@
     --ink: #14161c; --ink-2: #4a5361; --ink-3: #7b8494;
     --line: #dee1e8; --field-bg: #ffffff; --field-line: #c8cdd7;
     --accent: #4f46e5; --accent-ink: #4338ca; --ring: rgba(79, 70, 229, 0.32);
+    --cat-1: #2a78d6; --cat-2: #1baf7a; --cat-3: #eda100; --cat-4: #008300; --cat-5: #4a3aa7; --cat-6: #e34948; --cat-7: #e87ba4; --cat-8: #eb6834;
     --good: #15803d; --good-bg: #dcfce7; --warn: #b45309; --warn-bg: #fef3c7;
     --bad: #b91c1c; --bad-bg: #fee2e2; --info-bg: #e0e7ff; --info-ink: #4338ca;
     --nav-bg: #f4f5f9; --nav-panel: #e9ebf2; --nav-strong: #191c22; --nav-ink: #444b57; --nav-ink-2: #868f9e; --nav-line: #e2e5ee;
@@ -82,6 +89,7 @@
     --ink: #e8ebf1; --ink-2: #a7afbe; --ink-3: #737b8b;
     --line: #262b34; --field-bg: #0f1218; --field-line: #333a45;
     --accent: #6d5efc; --accent-ink: #a5a0ff; --ring: rgba(109, 94, 252, 0.38);
+    --cat-1: #3987e5; --cat-2: #199e70; --cat-3: #c98500; --cat-4: #008300; --cat-5: #9085e9; --cat-6: #e66767; --cat-7: #d55181; --cat-8: #d95926;
     --good: #4ade80; --good-bg: #12291d; --warn: #fbbf24; --warn-bg: #2a2110;
     --bad: #f87171; --bad-bg: #2a1414; --info-bg: #1e2140; --info-ink: #b4b0ff;
     --nav-bg: #0f1218; --nav-panel: #191d25; --nav-strong: #ffffff; --nav-ink: #cbd0db; --nav-ink-2: #767e8f; --nav-line: #1f2430;
@@ -254,6 +262,17 @@ tbody tr:hover { background: var(--surface-2); }
 .check-list li { display: flex; align-items: center; gap: 9px; }
 .check-list .ok { color: var(--good); }
 .check-list .bad { color: var(--bad); }
+
+/* ---------- Rozpady návštěvnosti (donuty) ---------- */
+.traffic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+.donut-wrap { display: flex; align-items: flex-start; gap: 18px; }
+.donut { width: 100px; height: 100px; flex: none; }
+.donut-legend { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
+.lg { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.lg-dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.lg-label { color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lg-val { margin-left: auto; color: var(--ink-3); font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rank-empty { color: var(--ink-3); font-size: 13px; padding-top: 6px; }
 
 /* ---------- Poptávky ---------- */
 .inq { padding: 16px var(--pad); border-bottom: 1px solid var(--line); }

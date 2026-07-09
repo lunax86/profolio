@@ -52,7 +52,11 @@ export const api = {
     portfolio: () => get<PortfolioItem[]>('/api/portfolio'),
     /** Anonymní záznam návštěvy - bez čekání na odpověď, chyby ignorujeme. */
     hit: (): void => {
-        void fetch('/api/hit', { method: 'POST' }).catch(() => {});
+        void fetch('/api/hit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ref: document.referrer || '' }),
+        }).catch(() => {});
     },
     async sendInquiry(payload: InquiryPayload): Promise<{ message: string }> {
         const res = await fetch('/api/inquiries', {

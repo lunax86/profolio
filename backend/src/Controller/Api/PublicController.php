@@ -8,12 +8,13 @@ use App\Core\Config;
 use App\Core\Request;
 use App\Core\Response;
 use App\Repository\InquiryRepository;
-use App\Repository\PageViewRepository;
 use App\Repository\PortfolioRepository;
 use App\Repository\ServiceRepository;
 use App\Repository\SettingRepository;
+use App\Repository\VisitRepository;
 use App\Support\Clock;
 use App\Support\RateLimiter;
+use App\Support\UserAgent;
 use App\Support\Validator;
 use OpenApi\Attributes as OA;
 
@@ -128,7 +129,40 @@ final class PublicController
         $salt = (string) Config::get('JWT_SECRET', 'salt');
         $hash = hash('sha256', $request->clientIp() . '|' . $request->userAgent() . '|' . $day . '|' . $salt);
 
-        (new PageViewRepository())->record($day, $hash);
+        // Odvozené štítky z hlaviček (žádné syrové IP/UA se neukládá).
+        $agent = UserAgent::parse($request->userAgent());
+
+        (new VisitRepository())->record([
+            'day' => $day,
+            'visitor_hash' => $hash,
+            'referrer_host' => self::hostFromReferrer((string) $request->input('ref', '')),
+            'device' => $agent['device'],
+            'browser' => $agent['browser'],
+            'os' => $agent['os'],
+            'language' => self::primaryLanguage($request->header('Accept-Language')),
+        ]);
         Response::noContent();
+    }
+
+    /** Host zdroje (externí referrer). Vlastní doména i prázdno → „(přímý)". */
+    private static function hostFromReferrer(string $referrer): string
+    {
+        $host = strtolower((string) (parse_url($referrer, PHP_URL_HOST) ?: ''));
+        $host = preg_replace('/^www\./', '', $host) ?? $host;
+        if ($host === '' || $host === ($_SERVER['HTTP_HOST'] ?? '')) {
+            return '(přímý)';
+        }
+
+        return mb_substr($host, 0, 120);
+    }
+
+    /** První jazyk z Accept-Language (např. „cs-CZ,en;q=0.8" → „cs"). */
+    private static function primaryLanguage(string $acceptLanguage): string
+    {
+        $first = trim(explode(',', $acceptLanguage)[0] ?? '');
+        $first = trim(explode(';', $first)[0] ?? '');
+        $primary = strtolower(trim(explode('-', $first)[0] ?? ''));
+
+        return preg_match('/^[a-z]{2,3}$/', $primary) ? $primary : '';
     }
 }

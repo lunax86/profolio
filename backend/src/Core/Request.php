@@ -72,4 +72,12 @@ final class Request
     {
         return (string) ($this->server['HTTP_USER_AGENT'] ?? '');
     }
+
+    /** Hodnota libovolné HTTP hlavičky (např. „Referer", „Accept-Language"). */
+    public function header(string $name): string
+    {
+        $key = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
+
+        return (string) ($this->server[$key] ?? '');
+    }
 }

@@ -60,15 +60,27 @@ $pdo->exec(<<<'SQL'
     );
 SQL);
 
+// Návštěvnost: jeden řádek na přístup (bez cookies, bez čitelné IP). Denně rotující
+// visitor_hash → unikáti; odvozené štítky (device/browser/os) → rozpady v sekci Návštěvnost.
 $pdo->exec(<<<'SQL'
-    CREATE TABLE IF NOT EXISTS page_views (
-        id           INTEGER PRIMARY KEY AUTOINCREMENT,
-        day          TEXT NOT NULL,
-        visitor_hash TEXT NOT NULL,
-        created_at   TEXT NOT NULL DEFAULT (datetime('now')),
-        UNIQUE (day, visitor_hash)
+    CREATE TABLE IF NOT EXISTS visits (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        day           TEXT NOT NULL,
+        visitor_hash  TEXT NOT NULL,
+        referrer_host TEXT NOT NULL DEFAULT '',
+        device        TEXT NOT NULL DEFAULT '',
+        browser       TEXT NOT NULL DEFAULT '',
+        os            TEXT NOT NULL DEFAULT '',
+        language      TEXT NOT NULL DEFAULT '',
+        created_at    TEXT NOT NULL DEFAULT (datetime('now'))
     );
 SQL);
+$pdo->exec('CREATE INDEX IF NOT EXISTS idx_visits_day ON visits (day)');
+$pdo->exec('CREATE INDEX IF NOT EXISTS idx_visits_created ON visits (created_at)');
+
+// Staré denní počítadlo page_views rušíme. Historii nepřenášíme - neměla by detaily
+// (zdroj/zařízení/…) a v rozpadech by dělala jen balast „(neznámé)".
+$pdo->exec('DROP TABLE IF EXISTS page_views');
 
 $pdo->exec(<<<'SQL'
     CREATE TABLE IF NOT EXISTS login_attempts (

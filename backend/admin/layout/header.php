@@ -13,6 +13,7 @@ $navigationGroups = [
     ['section' => null, 'items' => [
         'dashboard' => ['Přehled', 'dashboard'],
         'inquiries' => ['Poptávky', 'inbox'],
+        'traffic' => ['Návštěvnost', 'chart'],
     ]],
     ['section' => 'Obsah', 'items' => [
         'services' => ['Služby', 'briefcase'],

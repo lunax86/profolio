@@ -6,11 +6,11 @@ use App\Core\Config;
 use App\Repository\AdminUserRepository;
 use App\Repository\InquiryRepository;
 use App\Repository\LoginAttemptRepository;
-use App\Repository\PageViewRepository;
 use App\Repository\PortfolioRepository;
 use App\Repository\PrivateSettingRepository;
 use App\Repository\ServiceRepository;
 use App\Repository\SettingRepository;
+use App\Repository\VisitRepository;
 use App\Support\Auth;
 use App\Support\Csrf;
 use App\Support\Mailer;
@@ -203,6 +203,23 @@ switch ($action) {
         ], 'Bezpečnost');
         break;
 
+    case 'traffic':
+        $visits = new VisitRepository();
+        $periods = ['24h' => 86400, '7d' => 604800, '30d' => 2592000];
+        $period = array_key_exists((string) ($_GET['obdobi'] ?? ''), $periods) ? (string) $_GET['obdobi'] : '7d';
+        $seconds = $periods[$period];
+        $render('traffic', [
+            'period' => $period,
+            'summary' => $visits->periodSummary($seconds),
+            'sources' => $visits->breakdown('referrer_host', $seconds),
+            'devices' => $visits->breakdown('device', $seconds),
+            'browsers' => $visits->breakdown('browser', $seconds),
+            'systems' => $visits->breakdown('os', $seconds),
+            'languages' => $visits->breakdown('language', $seconds),
+            'recent' => $visits->recent($seconds, 100),
+        ], 'Návštěvnost');
+        break;
+
     case 'smtp':
         $privateSettings = new PrivateSettingRepository();
         if ($method === 'POST') {
@@ -352,7 +369,7 @@ switch ($action) {
             'servicesCount' => count((new ServiceRepository())->all()),
             'portfolioCount' => count((new PortfolioRepository())->all()),
             'unread' => (new InquiryRepository())->unreadCount(),
-            'views' => (new PageViewRepository())->stats(),
+            'views' => (new VisitRepository())->stats(),
             'version' => $version,
         ], 'Přehled');
 }
