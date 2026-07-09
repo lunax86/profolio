@@ -25,6 +25,8 @@ use App\Support\Version;
 
 Auth::ensureSession();
 
+require __DIR__ . '/helpers.php';
+
 $path = rtrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/', '/');
 $action = trim(str_replace('/admin', '', $path), '/') ?: 'dashboard';
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';

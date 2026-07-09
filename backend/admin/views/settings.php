@@ -5,118 +5,78 @@ declare(strict_types=1);
 use App\Support\Csrf;
 
 /** @var array<string, string> $settings */
-$escape = static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
-$setting = static fn (string $key): string => htmlspecialchars((string) ($settings[$key] ?? ''), ENT_QUOTES, 'UTF-8');
+$get = static fn (string $key): string => (string) ($settings[$key] ?? '');
+
+// Nabídka časových zón (UTC + Evropa) s aktuálním posunem.
+$currentZone = $settings['timezone'] ?? 'Europe/Prague';
+$now = new DateTimeImmutable('now');
+$zoneOptions = '';
+foreach (array_merge(['UTC'], DateTimeZone::listIdentifiers(DateTimeZone::EUROPE)) as $zone) {
+    $offsetSeconds = (new DateTimeZone($zone))->getOffset($now);
+    $offsetLabel = sprintf('UTC%s%02d:%02d', $offsetSeconds < 0 ? '-' : '+', intdiv(abs($offsetSeconds), 3600), intdiv(abs($offsetSeconds) % 3600, 60));
+    $zoneOptions .= '<option value="' . escape($zone) . '"' . ($zone === $currentZone ? ' selected' : '') . '>' . escape($zone . ' (' . $offsetLabel . ')') . '</option>';
+}
+
+$indexOn = ($settings['seo_index'] ?? '1') !== '0';
+$seoTitlePlaceholder = $get('site_title') . ($get('hero_slogan') !== '' ? ' - ' . $get('hero_slogan') : '');
 ?>
-<h1>Nastavení webu</h1>
 <?php if (!empty($_GET['err'])): ?>
-<div class="alert"><?= $escape($_GET['err']) ?></div>
+<div class="notice notice-err"><?= icon('alert', 'ic ic-sm') ?><?= escape($_GET['err']) ?></div>
 <?php endif; ?>
+
 <form method="post" action="/admin/settings" enctype="multipart/form-data">
     <?= Csrf::field() ?>
-    <div class="card">
-        <h2 style="margin-top:0;font-size:1.1rem;">Úvodní sekce (hero)</h2>
-        <label>Název webu</label>
-        <input type="text" name="site_title" value="<?= $setting('site_title') ?>">
-        <label>Hlavní titulek</label>
-        <input type="text" name="hero_title" value="<?= $setting('hero_title') ?>">
-        <label>Slogan</label>
-        <input type="text" name="hero_slogan" value="<?= $setting('hero_slogan') ?>">
-        <label>URL úvodní fotky</label>
-        <input type="url" name="hero_image" value="<?= $setting('hero_image') ?>">
-    </div>
-    <div class="card">
-        <h2 style="margin-top:0;font-size:1.1rem;">Kontaktní údaje</h2>
-        <label>E-mail</label>
-        <input type="email" name="contact_email" value="<?= $setting('contact_email') ?>">
-        <label>Telefon</label>
-        <input type="text" name="contact_phone" value="<?= $setting('contact_phone') ?>">
-        <label>Adresa</label>
-        <input type="text" name="contact_address" value="<?= $setting('contact_address') ?>">
-        <label>Facebook</label>
-        <input type="url" name="social_facebook" value="<?= $setting('social_facebook') ?>">
-        <label>Instagram</label>
-        <input type="url" name="social_instagram" value="<?= $setting('social_instagram') ?>">
-    </div>
-    <div class="card">
-        <h2 style="margin-top:0;font-size:1.1rem;">Ikona webu (favicon)</h2>
-        <p style="color:#64748b;font-size:.85rem;margin:.25rem 0 .5rem;">
-            Ikonka v záložce prohlížeče. Ideálně čtvercový PNG (např. 512×512). Prázdné = výchozí ikona.
-        </p>
-        <div style="display:flex;align-items:center;gap:1rem;">
-            <img src="<?= $setting('favicon_path') ?: '/favicon.svg' ?>" alt="favicon" width="48" height="48"
-                 style="border:1px solid #e2e8f0;border-radius:8px;background:#fff;object-fit:contain;padding:4px;">
-            <div style="flex:1;">
+
+    <?= card_open('Úvodní sekce (hero)') ?>
+        <?= field('Název webu', 'site_title', ['value' => $get('site_title')]) ?>
+        <?= field('Hlavní titulek', 'hero_title', ['value' => $get('hero_title')]) ?>
+        <?= field('Slogan', 'hero_slogan', ['value' => $get('hero_slogan')]) ?>
+        <?= field('URL úvodní fotky', 'hero_image', ['type' => 'url', 'value' => $get('hero_image')]) ?>
+    <?= card_close() ?>
+
+    <?= card_open('Kontaktní údaje') ?>
+        <?= field('E-mail', 'contact_email', ['type' => 'email', 'value' => $get('contact_email')]) ?>
+        <?= field('Telefon', 'contact_phone', ['value' => $get('contact_phone')]) ?>
+        <?= field('Adresa', 'contact_address', ['value' => $get('contact_address')]) ?>
+        <?= field('Facebook', 'social_facebook', ['type' => 'url', 'value' => $get('social_facebook')]) ?>
+        <?= field('Instagram', 'social_instagram', ['type' => 'url', 'value' => $get('social_instagram')]) ?>
+    <?= card_close() ?>
+
+    <?= card_open('Ikona webu (favicon)') ?>
+        <p class="hint">Ikonka v záložce prohlížeče. Ideálně čtvercový PNG (např. 512×512). Prázdné = výchozí ikona.</p>
+        <div class="favicon-row">
+            <img class="favicon-prev" src="<?= escape($get('favicon_path') ?: '/favicon.svg') ?>" alt="favicon" width="48" height="48">
+            <div class="grow">
                 <input type="file" name="favicon" accept="image/png,image/jpeg,image/webp">
-                <?php if ($setting('favicon_path')): ?>
-                <label style="font-weight:400;margin-top:.5rem;display:flex;align-items:center;gap:.4rem;">
-                    <input type="checkbox" name="favicon_remove" value="1" style="width:auto;"> Odebrat vlastní ikonu (vrátit výchozí)
-                </label>
+                <?php if ($get('favicon_path') !== ''): ?>
+                <label class="check"><input type="checkbox" name="favicon_remove" value="1"> Odebrat vlastní ikonu (vrátit výchozí)</label>
                 <?php endif; ?>
             </div>
         </div>
-    </div>
-    <div class="card">
-        <h2 style="margin-top:0;font-size:1.1rem;">Časová zóna</h2>
-        <p style="color:#64748b;font-size:.85rem;margin:.25rem 0 .5rem;">
-            V této zóně se v administraci zobrazují časy (poptávky, přihlášení) a počítá se den u návštěvnosti.
-        </p>
-        <label>Časová zóna webu</label>
-        <select name="timezone">
-            <?php
-            $currentZone = $settings['timezone'] ?? 'Europe/Prague';
-$zones = array_merge(['UTC'], DateTimeZone::listIdentifiers(DateTimeZone::EUROPE));
-$now = new DateTimeImmutable('now');
-foreach ($zones as $zone):
-    $offsetSeconds = (new DateTimeZone($zone))->getOffset($now);
-    $offsetLabel = sprintf('UTC%s%02d:%02d', $offsetSeconds < 0 ? '-' : '+', intdiv(abs($offsetSeconds), 3600), intdiv(abs($offsetSeconds) % 3600, 60));
-    ?>
-                <option value="<?= $escape($zone) ?>"<?= $zone === $currentZone ? ' selected' : '' ?>><?= $escape($zone . ' (' . $offsetLabel . ')') ?></option>
-            <?php endforeach; ?>
-        </select>
-    </div>
-    <div class="card">
-        <h2 style="margin-top:0;font-size:1.1rem;">SEO a vyhledávače</h2>
-        <p style="color:#64748b;font-size:.85rem;margin:.25rem 0 .75rem;">
-            Jak se web ukáže ve vyhledávání a při sdílení na sítích. Prázdná pole se doplní automaticky z názvu a sloganu.
-        </p>
+    <?= card_close() ?>
 
-        <label>SEO titulek <span style="font-weight:400;color:#94a3b8;">(ideálně do ~60 znaků)</span></label>
-        <input type="text" name="seo_title" maxlength="70" value="<?= $setting('seo_title') ?>"
-               placeholder="<?= $setting('site_title') ?><?= $settings['hero_slogan'] ?? '' ? ' - ' . $setting('hero_slogan') : '' ?>">
+    <?= card_open('Časová zóna') ?>
+        <p class="hint">V této zóně se v administraci zobrazují časy (poptávky, přihlášení) a počítá se den u návštěvnosti.</p>
+        <?= field_wrap('Časová zóna webu', '<select name="timezone">' . $zoneOptions . '</select>') ?>
+    <?= card_close() ?>
 
-        <label>SEO popis <span style="font-weight:400;color:#94a3b8;">(ideálně do ~155 znaků)</span></label>
-        <textarea name="seo_description" rows="3" maxlength="180" placeholder="<?= $setting('hero_slogan') ?>"><?= $setting('seo_description') ?></textarea>
+    <?= card_open('SEO a vyhledávače') ?>
+        <p class="hint">Jak se web ukáže ve vyhledávání a při sdílení na sítích. Prázdná pole se doplní automaticky z názvu a sloganu.</p>
+        <?= field('SEO titulek', 'seo_title', ['value' => $get('seo_title'), 'maxlength' => 70, 'counter' => true, 'sub' => '(ideálně do ~60 znaků)', 'placeholder' => $seoTitlePlaceholder]) ?>
+        <?= field_wrap('SEO popis', '<textarea name="seo_description" id="f-seo_description" rows="3" maxlength="180" placeholder="' . escape($get('hero_slogan')) . '">' . escape($get('seo_description')) . '</textarea><div class="counter" data-counter="#f-seo_description"></div>', '(ideálně do ~155 znaků)') ?>
+        <?= field('Obrázek pro sdílení - URL', 'seo_image', ['type' => 'url', 'value' => $get('seo_image'), 'sub' => '(fallback: úvodní fotka)', 'placeholder' => $get('hero_image')]) ?>
+        <?= field_wrap('Indexování vyhledávači', '<select name="seo_index">'
+            . '<option value="1"' . ($indexOn ? ' selected' : '') . '>Ano - web se smí zobrazovat ve vyhledávání</option>'
+            . '<option value="0"' . (!$indexOn ? ' selected' : '') . '>Ne - skrýt web před vyhledávači (noindex)</option>'
+            . '</select>') ?>
+    <?= card_close() ?>
 
-        <label>Obrázek pro sdílení - URL <span style="font-weight:400;color:#94a3b8;">(fallback: úvodní fotka)</span></label>
-        <input type="url" name="seo_image" value="<?= $setting('seo_image') ?>" placeholder="<?= $setting('hero_image') ?>">
+    <?= card_open('Zásady ochrany osobních údajů (GDPR)') ?>
+        <p class="hint">Text se zobrazí návštěvníkům přes odkaz u formuláře a v patičce. Doplňte prosím údaje své firmy (název, IČO, sídlo).</p>
+        <?= field_wrap('', '<textarea name="privacy_policy" rows="14">' . escape($get('privacy_policy')) . '</textarea>') ?>
+    <?= card_close() ?>
 
-        <label>Indexování vyhledávači</label>
-        <select name="seo_index">
-            <option value="1" <?= ($settings['seo_index'] ?? '1') !== '0' ? 'selected' : '' ?>>Ano - web se smí zobrazovat ve vyhledávání</option>
-            <option value="0" <?= ($settings['seo_index'] ?? '1') === '0' ? 'selected' : '' ?>>Ne - skrýt web před vyhledávači (noindex)</option>
-        </select>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary"><?= icon('check', 'ic ic-sm') ?> Uložit nastavení</button>
     </div>
-    <div class="card">
-        <h2 style="margin-top:0;font-size:1.1rem;">Zásady ochrany osobních údajů (GDPR)</h2>
-        <p style="color:#64748b;font-size:.85rem;margin:.25rem 0 .5rem;">
-            Text se zobrazí návštěvníkům přes odkaz u formuláře a v patičce. Doplňte prosím údaje své firmy (název, IČO, sídlo).
-        </p>
-        <textarea name="privacy_policy" rows="14"><?= $setting('privacy_policy') ?></textarea>
-    </div>
-    <button type="submit">Uložit nastavení</button>
 </form>
-
-<script>
-    // Živé počítadlo znaků u SEO polí (title/description).
-    document.querySelectorAll('input[name="seo_title"], textarea[name="seo_description"]').forEach(function (el) {
-        var hint = document.createElement('div');
-        hint.style.cssText = 'font-size:.75rem;color:#94a3b8;margin-top:.15rem;';
-        var update = function () {
-            hint.textContent = el.value.length + ' / ' + el.getAttribute('maxlength') + ' znaků';
-        };
-        el.insertAdjacentElement('afterend', hint);
-        update();
-        el.addEventListener('input', update);
-    });
-</script>

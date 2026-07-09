@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Core\Config;
+use App\Support\Csrf;
+
 /**
  * @var int $servicesCount
  * @var int $portfolioCount
@@ -9,88 +12,71 @@ declare(strict_types=1);
  * @var array{today:int, last7:int, total:int, perDay:array<int, array{day:string, count:int}>} $views
  * @var array{current:?string, latest:?string, slug:?string, upToDate:?bool, error:?string, checked:bool} $version
  */
-$escape = static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 $maxCount = max(1, ...array_map(static fn ($day): int => (int) $day['count'], $views['perDay']));
 ?>
-<h1>Přehled</h1>
-<div class="grid">
-    <div class="card">
-        <div class="stat"><?= (int) $unread ?></div>
-        <div>Nepřečtené poptávky</div>
-        <p><a href="/admin/inquiries">Zobrazit poptávky →</a></p>
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="top">Nepřečtené poptávky <span class="chip"><?= icon('inbox', 'ic ic-sm') ?></span></div>
+        <div class="num"><?= (int) $unread ?></div>
+        <a class="link" href="/admin/inquiries">Zobrazit <?= icon('arrow', 'ic ic-sm') ?></a>
     </div>
-    <div class="card">
-        <div class="stat"><?= (int) $servicesCount ?></div>
-        <div>Služby</div>
-        <p><a href="/admin/services">Spravovat služby →</a></p>
+    <div class="stat-card">
+        <div class="top">Služby <span class="chip"><?= icon('briefcase', 'ic ic-sm') ?></span></div>
+        <div class="num"><?= (int) $servicesCount ?></div>
+        <a class="link" href="/admin/services">Spravovat <?= icon('arrow', 'ic ic-sm') ?></a>
     </div>
-    <div class="card">
-        <div class="stat"><?= (int) $portfolioCount ?></div>
-        <div>Ukázky práce</div>
-        <p><a href="/admin/portfolio">Spravovat portfolio →</a></p>
+    <div class="stat-card">
+        <div class="top">Ukázky práce <span class="chip"><?= icon('image', 'ic ic-sm') ?></span></div>
+        <div class="num"><?= (int) $portfolioCount ?></div>
+        <a class="link" href="/admin/portfolio">Spravovat <?= icon('arrow', 'ic ic-sm') ?></a>
     </div>
 </div>
-<div class="card">
-    <h2 class="views-title">Návštěvnost</h2>
-    <div class="views-stats">
-        <div><div class="stat"><?= (int) $views['today'] ?></div><div>dnes</div></div>
-        <div><div class="stat"><?= (int) $views['last7'] ?></div><div>za 7 dní</div></div>
-        <div><div class="stat"><?= (int) $views['total'] ?></div><div>celkem</div></div>
-    </div>
-    <div class="views-chart">
-        <?php foreach ($views['perDay'] as $day): ?>
-            <div class="views-bar" title="<?= htmlspecialchars($day['day'], ENT_QUOTES) ?>: <?= (int) $day['count'] ?>">
-                <div class="views-bar-fill" style="height: <?= (int) round($day['count'] / $maxCount * 100) ?>%"></div>
-            </div>
-        <?php endforeach; ?>
-    </div>
-    <div class="views-note">Unikátní návštěvníci za den · posledních <?= count($views['perDay']) ?> dní</div>
-</div>
 
-<style>
-    .views-title { margin-top: 0; font-size: 1.1rem; }
-    .views-stats { display: flex; gap: 2.5rem; margin: .5rem 0 1.25rem; }
-    .views-stats > div > div:last-child { color: #64748b; font-size: .85rem; }
-    .views-chart { display: flex; align-items: flex-end; gap: 3px; height: 72px; }
-    .views-bar { flex: 1; display: flex; align-items: flex-end; height: 100%; background: #f1f5f9; border-radius: 3px; }
-    .views-bar-fill { width: 100%; background: var(--brand); border-radius: 3px 3px 0 0; min-height: 2px; }
-    .views-note { margin-top: .5rem; font-size: .8rem; color: #64748b; }
-</style>
+<?= card_open('Návštěvnost', 'unikátní návštěvníci za den · posledních ' . count($views['perDay']) . ' dní') ?>
+    <div class="visits">
+        <div class="figs">
+            <div class="fig"><div class="n"><?= (int) $views['today'] ?></div><div class="l">dnes</div></div>
+            <div class="fig"><div class="n"><?= (int) $views['last7'] ?></div><div class="l">za 7 dní</div></div>
+            <div class="fig"><div class="n"><?= (int) $views['total'] ?></div><div class="l">celkem</div></div>
+        </div>
+        <div class="chart">
+            <?php foreach ($views['perDay'] as $day): ?>
+                <span class="bar" title="<?= escape($day['day']) ?>: <?= (int) $day['count'] ?>"><i style="height: <?= (int) round($day['count'] / $maxCount * 100) ?>%"></i></span>
+            <?php endforeach; ?>
+        </div>
+    </div>
+<?= card_close() ?>
 
-<div class="card">
-    <p>Obsah webu upravíte v sekci <a href="/admin/settings">Nastavení</a> (titulek, slogan, kontaktní údaje, úvodní fotka).</p>
-    <?php if (\App\Core\Config::get('APP_ENV') !== 'production'): ?>
-    <p>API dokumentace: <a href="/swagger" target="_blank">/swagger</a></p>
+<?= card_open('Obsah webu') ?>
+    <p>Obsah upravíte v sekci <a href="/admin/settings">Nastavení</a> (titulek, slogan, kontaktní údaje, úvodní fotka).</p>
+    <?php if (Config::get('APP_ENV') !== 'production'): ?>
+    <p>API dokumentace: <a href="/swagger" target="_blank" rel="noopener">/swagger</a></p>
     <?php endif; ?>
-</div>
+<?= card_close() ?>
 
-<div class="card">
-    <h2 style="margin-top:0;font-size:1.1rem;">Verze</h2>
-    <p style="color:#64748b;font-size:.9rem;margin:.25rem 0 .75rem;">
-        Nasazená verze: <code><?= $version['current'] ? $escape(substr($version['current'], 0, 7)) : 'neznámá' ?></code>
+<?= card_open('Verze') ?>
+    <p>Nasazená verze: <code><?= $version['current'] ? escape(substr($version['current'], 0, 7)) : 'neznámá' ?></code>
         <?php if ($version['slug']): ?>
-            · <a href="https://github.com/<?= $escape($version['slug']) ?>" target="_blank"><?= $escape($version['slug']) ?></a>
+            · <a href="https://github.com/<?= escape($version['slug']) ?>" target="_blank" rel="noopener"><?= escape($version['slug']) ?> <?= icon('external', 'ic ic-sm') ?></a>
         <?php endif; ?>
     </p>
-
     <?php if ($version['checked']): ?>
         <?php if ($version['error']): ?>
-            <div class="alert"><?= $escape($version['error']) ?></div>
+            <div class="notice notice-err"><?= icon('alert', 'ic ic-sm') ?><?= escape($version['error']) ?></div>
         <?php elseif ($version['upToDate']): ?>
-            <p style="color:#166534;font-weight:600;">✅ Máte nejnovější verzi.</p>
+            <div class="notice notice-ok"><?= icon('check', 'ic ic-sm') ?> Máte nejnovější verzi.</div>
         <?php else: ?>
-            <p style="color:#9a3412;font-weight:600;">
-                ⬆ K dispozici je novější verze (<code><?= $escape(substr((string) $version['latest'], 0, 7)) ?></code>).
+            <div class="notice notice-warn">
+                <?= icon('alert', 'ic ic-sm') ?>
+                K dispozici je novější verze (<code><?= escape(substr((string) $version['latest'], 0, 7)) ?></code>).
                 <?php if ($version['slug'] && $version['current']): ?>
-                    <a href="https://github.com/<?= $escape($version['slug']) ?>/compare/<?= $escape($version['current']) ?>...main" target="_blank">Zobrazit změny →</a>
+                    <a href="https://github.com/<?= escape($version['slug']) ?>/compare/<?= escape($version['current']) ?>...main" target="_blank" rel="noopener">Zobrazit změny</a>
                 <?php endif; ?>
-            </p>
+            </div>
         <?php endif; ?>
     <?php endif; ?>
-
-    <form method="post" action="/admin/dashboard">
-        <?= \App\Support\Csrf::field() ?>
-        <input type="hidden" name="_action" value="check_updates">
-        <button class="ghost" type="submit">Ověřit aktualizace</button>
-    </form>
-</div>
+<?= card_foot('<form method="post" action="/admin/dashboard" class="inline">'
+    . Csrf::field()
+    . '<input type="hidden" name="_action" value="check_updates">'
+    . '<button class="btn btn-ghost btn-sm" type="submit">' . icon('refresh', 'ic ic-sm') . ' Ověřit aktualizace</button>'
+    . '</form>') ?>

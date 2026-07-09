@@ -12,104 +12,83 @@ use App\Support\Csrf;
  * @var string|null $ok
  * @var string|null $err
  */
-$escape = static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 ?>
-<h1>Účet</h1>
-
 <?php if ($ok !== null): ?>
-    <div class="alert" style="background:#dcfce7;color:#166534;"><?= $escape($ok) ?></div>
+    <div class="notice notice-ok"><?= icon('check', 'ic ic-sm') ?><?= escape($ok) ?></div>
 <?php endif; ?>
 <?php if ($err !== null): ?>
-    <div class="alert"><?= $escape($err) ?></div>
+    <div class="notice notice-err"><?= icon('alert', 'ic ic-sm') ?><?= escape($err) ?></div>
 <?php endif; ?>
 
-<div class="card">
-    <h2 style="margin-top:0;font-size:1.1rem;">Přihlášen jako</h2>
-    <p>
-        <strong><?= $escape($currentUser['email']) ?></strong>
-        <span class="badge"><?= $isSuper ? 'super admin' : 'správce' ?></span>
-    </p>
-</div>
+<?= card_open('Přihlášen jako') ?>
+    <p><strong><?= escape($currentUser['email']) ?></strong> <span class="badge"><?= $isSuper ? 'super admin' : 'správce' ?></span></p>
+<?= card_close() ?>
 
-<div class="card">
-    <h2 style="margin-top:0;font-size:1.1rem;">Změna hesla</h2>
-    <form method="post" action="/admin/account">
-        <?= Csrf::field() ?>
-        <input type="hidden" name="_action" value="change_password">
-        <label>Současné heslo</label>
-        <input type="password" name="current_password" required autocomplete="current-password">
-        <label>Nové heslo (alespoň 8 znaků)</label>
-        <input type="password" name="new_password" required minlength="8" autocomplete="new-password">
-        <label>Nové heslo znovu</label>
-        <input type="password" name="new_password_confirm" required minlength="8" autocomplete="new-password">
-        <div style="margin-top:.75rem;"><button type="submit">Změnit heslo</button></div>
-    </form>
-</div>
+<form method="post" action="/admin/account">
+    <?= Csrf::field() ?>
+    <input type="hidden" name="_action" value="change_password">
+    <?= card_open('Změna hesla') ?>
+        <?= field('Současné heslo', 'current_password', ['type' => 'password', 'required' => true, 'autocomplete' => 'current-password']) ?>
+        <?= field('Nové heslo', 'new_password', ['type' => 'password', 'required' => true, 'minlength' => 8, 'autocomplete' => 'new-password', 'sub' => '(alespoň 8 znaků)']) ?>
+        <?= field('Nové heslo znovu', 'new_password_confirm', ['type' => 'password', 'required' => true, 'minlength' => 8, 'autocomplete' => 'new-password']) ?>
+    <?= card_foot('<button type="submit" class="btn btn-primary">Změnit heslo</button>') ?>
+</form>
 
-<div class="card">
-    <h2 style="margin-top:0;font-size:1.1rem;">Změna e-mailu</h2>
-    <form method="post" action="/admin/account">
-        <?= Csrf::field() ?>
-        <input type="hidden" name="_action" value="change_email">
-        <label>Nový e-mail</label>
-        <input type="email" name="new_email" value="<?= $escape($currentUser['email']) ?>" required>
-        <label>Současné heslo (pro potvrzení)</label>
-        <input type="password" name="current_password" required autocomplete="current-password">
-        <div style="margin-top:.75rem;"><button type="submit">Změnit e-mail</button></div>
-    </form>
-</div>
+<form method="post" action="/admin/account">
+    <?= Csrf::field() ?>
+    <input type="hidden" name="_action" value="change_email">
+    <?= card_open('Změna e-mailu') ?>
+        <?= field('Nový e-mail', 'new_email', ['type' => 'email', 'value' => (string) $currentUser['email'], 'required' => true]) ?>
+        <?= field('Současné heslo', 'current_password', ['type' => 'password', 'required' => true, 'autocomplete' => 'current-password', 'sub' => '(pro potvrzení)', 'id' => 'f-current_password_email']) ?>
+    <?= card_foot('<button type="submit" class="btn btn-primary">Změnit e-mail</button>') ?>
+</form>
 
-<div class="card">
-    <h2 style="margin-top:0;font-size:1.1rem;">Správci</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>E-mail</th><th>Role</th><th>Vytvořeno</th>
-            <?php if ($isSuper): ?><th></th><?php endif; ?>
-        </tr>
-        </thead>
-        <tbody>
-        <?php foreach ($admins as $admin): ?>
-            <?php
-            $adminIsSuper = (int) $admin['is_super'] === 1;
-            $isSelf = (int) $admin['id'] === (int) $currentUser['id'];
-            ?>
+<?= card_open('Správci') ?>
+    <div class="tbl-wrap">
+        <table>
+            <thead>
             <tr>
-                <td><?= $escape($admin['email']) ?><?= $isSelf ? ' (vy)' : '' ?></td>
-                <td><?= $adminIsSuper ? 'super admin' : 'správce' ?></td>
-                <td><?= $escape(Clock::formatUtc($admin['created_at'])) ?></td>
-                <?php if ($isSuper): ?>
-                    <td>
-                        <?php if (!$adminIsSuper && !$isSelf): ?>
-                            <form method="post" action="/admin/account" onsubmit="return confirm('Opravdu smazat tohoto správce?')">
-                                <?= Csrf::field() ?>
-                                <input type="hidden" name="_action" value="delete">
-                                <input type="hidden" name="id" value="<?= (int) $admin['id'] ?>">
-                                <button type="submit" class="danger">Smazat</button>
-                            </form>
-                        <?php endif; ?>
-                    </td>
-                <?php endif; ?>
+                <th>E-mail</th><th>Role</th><th>Vytvořeno</th>
+                <?php if ($isSuper): ?><th></th><?php endif; ?>
             </tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
-</div>
+            </thead>
+            <tbody>
+            <?php foreach ($admins as $admin): ?>
+                <?php
+                $adminIsSuper = (int) $admin['is_super'] === 1;
+                $isSelf = (int) $admin['id'] === (int) $currentUser['id'];
+                ?>
+                <tr>
+                    <td class="cell-strong"><?= escape($admin['email']) ?><?= $isSelf ? ' (vy)' : '' ?></td>
+                    <td><?= $adminIsSuper ? 'super admin' : 'správce' ?></td>
+                    <td class="cell-sub nowrap"><?= escape(Clock::formatUtc($admin['created_at'])) ?></td>
+                    <?php if ($isSuper): ?>
+                        <td>
+                            <?php if (!$adminIsSuper && !$isSelf): ?>
+                                <form method="post" action="/admin/account" class="inline" onsubmit="return confirm('Opravdu smazat tohoto správce?')">
+                                    <?= Csrf::field() ?>
+                                    <input type="hidden" name="_action" value="delete">
+                                    <input type="hidden" name="id" value="<?= (int) $admin['id'] ?>">
+                                    <button type="submit" class="btn btn-danger btn-sm"><?= icon('trash', 'ic ic-sm') ?> Smazat</button>
+                                </form>
+                            <?php endif; ?>
+                        </td>
+                    <?php endif; ?>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+<?= card_close() ?>
 
 <?php if ($isSuper): ?>
-    <div class="card">
-        <h2 style="margin-top:0;font-size:1.1rem;">Přidat správce</h2>
-        <form method="post" action="/admin/account">
-            <?= Csrf::field() ?>
-            <input type="hidden" name="_action" value="add">
-            <label>E-mail</label>
-            <input type="email" name="email" required>
-            <label>Počáteční heslo (alespoň 8 znaků)</label>
-            <input type="text" name="password" required minlength="8">
-            <p style="color:#64748b;font-size:.8rem;margin:.35rem 0 0;">
-                Heslo předáte správci, ten si ho pak může sám změnit.
-            </p>
-            <div style="margin-top:.75rem;"><button type="submit">Přidat správce</button></div>
-        </form>
-    </div>
+    <form method="post" action="/admin/account">
+        <?= Csrf::field() ?>
+        <input type="hidden" name="_action" value="add">
+        <?= card_open('Přidat správce') ?>
+            <?= field('E-mail', 'email', ['type' => 'email', 'required' => true]) ?>
+            <?= field('Počáteční heslo', 'password', ['type' => 'text', 'required' => true, 'minlength' => 8, 'sub' => '(alespoň 8 znaků)']) ?>
+            <p class="hint">Heslo předáte správci, ten si ho pak může sám změnit.</p>
+        <?= card_foot('<button type="submit" class="btn btn-primary">' . icon('plus', 'ic ic-sm') . ' Přidat správce</button>') ?>
+    </form>
 <?php endif; ?>
