@@ -154,6 +154,7 @@ switch ($action) {
     case 'inquiries':
         $repo = new InquiryRepository();
         $archivedView = ($_GET['archiv'] ?? '') === '1';
+        $isSuper = (int) ((new AdminUserRepository())->findById((int) Auth::user()['id'])['is_super'] ?? 0) === 1;
         if ($method === 'POST') {
             $verifyCsrf();
             $id = (int) $post('id');
@@ -164,6 +165,11 @@ switch ($action) {
             } elseif ($post('_action') === 'unarchive') {
                 $repo->setArchived($id, false);
             } elseif ($post('_action') === 'delete') {
+                // Nenávratné smazání smí jen super admin (ověřeno na serveru, ne jen skrytím tlačítka).
+                if (!$isSuper) {
+                    http_response_code(403);
+                    exit('Nedostatečná oprávnění: trvale mazat poptávky může jen super admin.');
+                }
                 $repo->deleteArchived($id);
             }
             $redirect('inquiries' . ($archivedView ? '?archiv=1' : ''));
@@ -172,6 +178,7 @@ switch ($action) {
             'inquiries' => $archivedView ? $repo->archived() : $repo->active(),
             'archivedView' => $archivedView,
             'archivedCount' => count($repo->archived()),
+            'isSuper' => $isSuper,
         ], 'Poptávky');
         break;
 

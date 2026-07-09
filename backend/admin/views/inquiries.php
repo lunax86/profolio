@@ -9,6 +9,7 @@ use App\Support\Csrf;
  * @var array<int, array<string, mixed>> $inquiries
  * @var bool $archivedView
  * @var int  $archivedCount
+ * @var bool $isSuper
  */
 $formAction = '/admin/inquiries' . ($archivedView ? '?archiv=1' : '');
 
@@ -21,6 +22,10 @@ $hiddenAction = static fn (string $action, int $id): string => Csrf::field()
     <a href="/admin/inquiries" class="<?= $archivedView ? '' : 'on' ?>">Aktivní</a>
     <a href="/admin/inquiries?archiv=1" class="<?= $archivedView ? 'on' : '' ?>">Archiv (<?= (int) $archivedCount ?>)</a>
 </div>
+
+<?php if ($archivedView && !$isSuper): ?>
+<p class="note">Trvale mazat archivované poptávky může jen super admin. Ty je můžeš archivovat a obnovovat.</p>
+<?php endif; ?>
 
 <div class="card">
     <?php if ($inquiries === []): ?>
@@ -51,7 +56,7 @@ $hiddenAction = static fn (string $action, int $id): string => Csrf::field()
                             <?= icon($archivedView ? 'restore' : 'archive', 'ic ic-sm') ?> <?= $archivedView ? 'Obnovit' : 'Archivovat' ?>
                         </button>
                     </form>
-                    <?php if ($archivedView): ?>
+                    <?php if ($archivedView && $isSuper): ?>
                     <form method="post" action="<?= escape($formAction) ?>" class="inline" onsubmit="return confirm('Opravdu NEVRATNĚ smazat tuto poptávku? Jméno, e-mail, telefon i zpráva budou trvale ztraceny. Tuto akci nelze vzít zpět.')">
                         <?= $hiddenAction('delete', $inquiryId) ?>
                         <button class="btn btn-danger btn-sm" type="submit"><?= icon('trash', 'ic ic-sm') ?> Smazat</button>
