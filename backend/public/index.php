@@ -89,7 +89,9 @@ if ($request->path !== '/api' && !str_starts_with($request->path, '/api/')) {
         $settings = (new App\Repository\SettingRepository())->all();
         $base = (string) Config::get('APP_URL', '');
         header('Content-Type: text/html; charset=utf-8');
-        echo App\Support\SeoRenderer::render((string) file_get_contents($shell), $settings, $base, $request->path);
+        $rendered = App\Support\SeoRenderer::render((string) file_get_contents($shell), $settings, $base, $request->path);
+        $rendered = App\Support\ThemeRenderer::render($rendered, $settings);
+        echo $rendered;
         exit;
     }
     Response::error('Not found', 404);

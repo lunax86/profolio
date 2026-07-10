@@ -45,7 +45,7 @@ export function InquiryForm({ onOpenPrivacy }: { onOpenPrivacy: () => void }) {
     };
 
     return (
-        <section id="poptavka" className="bg-secondary/50 py-24">
+        <section id="poptavka" className="py-24">
             <div className="container grid gap-12 lg:grid-cols-2">
                 <div>
                     <span className="text-sm font-semibold uppercase tracking-wider text-primary">Máte zájem?</span>

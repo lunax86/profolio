@@ -2,15 +2,65 @@
 
 export interface SiteSettings {
     site_title?: string;
+    /** Obecný jednořádkový popis; základ pro hero podnadpis, patičku i SEO. */
+    slogan?: string;
     hero_title?: string;
     hero_slogan?: string;
     hero_image?: string;
+    footer_tagline?: string;
     contact_email?: string;
     contact_phone?: string;
     contact_address?: string;
     social_facebook?: string;
     social_instagram?: string;
     privacy_policy?: string;
+    /** JSON pole modulárních sekcí v pořadí: [{ key, enabled }] */
+    sections?: string;
+}
+
+export interface SectionConfig {
+    key: string;
+    enabled: boolean;
+}
+
+/** Modulární sekce, které lze v administraci zapnout/vypnout a přeuspořádat. Hero a Footer jsou fixní. */
+export const MODULAR_SECTIONS = ['services', 'inquiry', 'portfolio', 'instagram'] as const;
+export type ModularSectionKey = (typeof MODULAR_SECTIONS)[number];
+
+const DEFAULT_SECTIONS: SectionConfig[] = [
+    { key: 'services', enabled: true },
+    { key: 'inquiry', enabled: true },
+    { key: 'portfolio', enabled: true },
+    { key: 'instagram', enabled: false },
+];
+
+/**
+ * Rozparsuje uložené pořadí a viditelnost sekcí (JSON z nastavení). Ponechá jen známé
+ * klíče a doplní chybějící (nová sekce přidaná do buildu) na konec jako vypnutou.
+ * Při nevalidním nebo prázdném vstupu spadne na výchozí pořadí.
+ */
+export function parseSections(raw?: string): SectionConfig[] {
+    let stored: SectionConfig[] = [];
+    if (raw) {
+        try {
+            const parsed: unknown = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+                stored = parsed
+                    .filter(
+                        (item): item is SectionConfig =>
+                            typeof item?.key === 'string' && MODULAR_SECTIONS.includes(item.key as ModularSectionKey),
+                    )
+                    .map((item) => ({ key: item.key, enabled: Boolean(item.enabled) }));
+            }
+        } catch {
+            // nevalidní JSON → výchozí pořadí níže
+        }
+    }
+    if (stored.length === 0) return DEFAULT_SECTIONS;
+
+    const storedKeys = new Set(stored.map((item) => item.key));
+    const missing = MODULAR_SECTIONS.filter((key) => !storedKeys.has(key)).map((key) => ({ key, enabled: false }));
+    return [...stored, ...missing];
 }
 
 export interface Service {

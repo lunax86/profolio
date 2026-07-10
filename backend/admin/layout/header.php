@@ -16,9 +16,17 @@ $navigationGroups = [
         'traffic' => ['Návštěvnost', 'chart'],
     ]],
     ['section' => 'Obsah', 'items' => [
+        'hero' => ['Úvod', 'panel-top'],
         'services' => ['Služby', 'briefcase'],
         'portfolio' => ['Portfolio', 'image'],
-        'settings' => ['Nastavení', 'settings'],
+        'paticka' => ['Patička', 'panel-bottom'],
+        'sections' => ['Sekce a pořadí', 'layers'],
+    ]],
+    ['section' => 'Nastavení', 'items' => [
+        'obecne' => ['Obecné', 'settings'],
+        'appearance' => ['Vzhled', 'palette'],
+        'seo' => ['SEO', 'globe'],
+        'zasady' => ['GDPR', 'fingerprint'],
     ]],
     ['section' => 'Systém', 'items' => [
         'security' => ['Bezpečnost', 'shield'],

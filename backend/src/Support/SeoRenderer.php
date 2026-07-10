@@ -17,7 +17,8 @@ final class SeoRenderer
     public static function render(string $shellHtml, array $settings, string $baseUrl, string $path): string
     {
         $siteTitle = self::settingValue($settings, 'site_title', 'Firemní web');
-        $slogan = self::settingValue($settings, 'hero_slogan', self::settingValue($settings, 'hero_title', ''));
+        // Obecný slogan je základ; fallback na hero_slogan/hero_title kvůli starším datům.
+        $slogan = self::settingValue($settings, 'slogan', self::settingValue($settings, 'hero_slogan', self::settingValue($settings, 'hero_title', '')));
 
         // Přednost mají vlastní SEO pole z administrace, jinak se odvodí z názvu/sloganu.
         $derivedTitle = $slogan !== '' ? $siteTitle . ' - ' . $slogan : $siteTitle;

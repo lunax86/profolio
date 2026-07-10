@@ -10,7 +10,9 @@ export function Footer({ settings, onOpenPrivacy }: { settings: SiteSettings; on
                 <div>
                     <h3 className="text-lg font-bold">{settings.site_title ?? 'Vaše firma'}</h3>
                     <p className="mt-3 text-sm text-muted-foreground">
-                        Kvalitní řešení na míru od návrhu až po realizaci.
+                        {settings.footer_tagline ||
+                            settings.slogan ||
+                            'Kvalitní řešení na míru od návrhu až po realizaci.'}
                     </p>
                 </div>
 

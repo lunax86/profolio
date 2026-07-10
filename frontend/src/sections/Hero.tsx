@@ -48,13 +48,15 @@ export function Hero({ settings }: { settings: SiteSettings }) {
 
             <div className="container relative z-10 flex flex-col items-center text-center text-white">
                 <h1 className="max-w-3xl animate-fade-up text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl">
-                    {settings.hero_title ?? 'Kvalitní řešení na míru'}
+                    {settings.hero_title || settings.site_title || 'Kvalitní řešení na míru'}
                 </h1>
                 <p
                     className="mt-6 max-w-xl animate-fade-up text-lg text-white/85"
                     style={{ animationDelay: '0.1s', opacity: 0 }}
                 >
-                    {settings.hero_slogan ?? 'Od návrhu až po realizaci, spolehlivě a s důrazem na detail.'}
+                    {settings.hero_slogan ||
+                        settings.slogan ||
+                        'Od návrhu až po realizaci, spolehlivě a s důrazem na detail.'}
                 </p>
                 <div className="mt-10 animate-fade-up" style={{ animationDelay: '0.2s', opacity: 0 }}>
                     <Button size="lg" onClick={() => document.getElementById('poptavka')?.scrollIntoView()}>

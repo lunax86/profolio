@@ -15,6 +15,8 @@ use App\Support\Auth;
 use App\Support\Csrf;
 use App\Support\Mailer;
 use App\Support\RateLimiter;
+use App\Support\SectionRegistry;
+use App\Support\ThemeRegistry;
 use App\Support\Uploader;
 use App\Support\Version;
 
@@ -130,12 +132,11 @@ switch ($action) {
         $render('portfolio', ['items' => $repo->all()], 'Portfolio');
         break;
 
-    case 'settings':
+    case 'obecne':
         $repo = new SettingRepository();
         if ($method === 'POST') {
             $verifyCsrf();
-            $keys = ['site_title', 'hero_title', 'hero_slogan', 'hero_image', 'contact_email', 'contact_phone', 'contact_address', 'social_facebook', 'social_instagram', 'privacy_policy', 'seo_title', 'seo_description', 'seo_image', 'seo_index', 'timezone'];
-            $repo->setMany(array_intersect_key($_POST, array_flip($keys)));
+            $repo->setMany(array_intersect_key($_POST, array_flip(['site_title', 'slogan', 'contact_email', 'contact_phone', 'contact_address', 'timezone'])));
 
             if ($post('favicon_remove')) {
                 $repo->setMany(['favicon_path' => '']);
@@ -143,12 +144,104 @@ switch ($action) {
                 try {
                     $repo->setMany(['favicon_path' => Uploader::store($_FILES['favicon'])]);
                 } catch (\RuntimeException $exception) {
-                    $redirect('settings?err=' . rawurlencode($exception->getMessage()));
+                    $redirect('obecne?err=' . rawurlencode($exception->getMessage()));
                 }
             }
-            $redirect('settings');
+            $redirect('obecne?ok=1');
         }
-        $render('settings', ['settings' => $repo->all()], 'Nastavení');
+        $render('obecne', ['settings' => $repo->all(), 'ok' => isset($_GET['ok'])], 'Obecné');
+        break;
+
+    case 'hero':
+        $repo = new SettingRepository();
+        if ($method === 'POST') {
+            $verifyCsrf();
+            $repo->setMany(array_intersect_key($_POST, array_flip(['hero_title', 'hero_slogan', 'hero_image'])));
+            $redirect('hero?ok=1');
+        }
+        $render('hero', ['settings' => $repo->all(), 'ok' => isset($_GET['ok'])], 'Úvod');
+        break;
+
+    case 'paticka':
+        $repo = new SettingRepository();
+        if ($method === 'POST') {
+            $verifyCsrf();
+            $repo->setMany(array_intersect_key($_POST, array_flip(['footer_tagline', 'social_facebook', 'social_instagram'])));
+            $redirect('paticka?ok=1');
+        }
+        $render('paticka', ['settings' => $repo->all(), 'ok' => isset($_GET['ok'])], 'Patička');
+        break;
+
+    case 'seo':
+        $repo = new SettingRepository();
+        if ($method === 'POST') {
+            $verifyCsrf();
+            $repo->setMany(array_intersect_key($_POST, array_flip(['seo_title', 'seo_description', 'seo_image', 'seo_index'])));
+            $redirect('seo?ok=1');
+        }
+        $render('seo', ['settings' => $repo->all(), 'ok' => isset($_GET['ok'])], 'SEO');
+        break;
+
+    case 'zasady':
+        $repo = new SettingRepository();
+        if ($method === 'POST') {
+            $verifyCsrf();
+            $repo->setMany(array_intersect_key($_POST, array_flip(['privacy_policy'])));
+            $redirect('zasady?ok=1');
+        }
+        $render('zasady', ['settings' => $repo->all(), 'ok' => isset($_GET['ok'])], 'GDPR');
+        break;
+
+    case 'appearance':
+        $repo = new SettingRepository();
+        if ($method === 'POST') {
+            $verifyCsrf();
+            $shade = (string) $post('theme_shade');
+            $accent = (string) $post('theme_accent');
+            $repo->setMany([
+                'theme_shade' => ThemeRegistry::isShade($shade) ? $shade : ThemeRegistry::DEFAULT_SHADE,
+                'theme_accent' => ThemeRegistry::isAccent($accent) ? $accent : ThemeRegistry::DEFAULT_ACCENT,
+            ]);
+            $redirect('appearance?ok=1');
+        }
+        $render('appearance', [
+            'settings' => $repo->all(),
+            'shades' => ThemeRegistry::shades(),
+            'accents' => ThemeRegistry::accents(),
+            'ok' => isset($_GET['ok']),
+        ], 'Vzhled');
+        break;
+
+    case 'sections':
+        $repo = new SettingRepository();
+        if ($method === 'POST') {
+            $verifyCsrf();
+            $orderInput = (array) ($_POST['order'] ?? []);
+            $enabledInput = (array) ($_POST['enabled'] ?? []);
+
+            // Poskládej sekce podle odeslaného pořadí; jen známé klíče, chybějící doplň vypnuté.
+            $sections = [];
+            $seen = [];
+            foreach ($orderInput as $key) {
+                $key = (string) $key;
+                if (isset(SectionRegistry::MODULAR[$key]) && !isset($seen[$key])) {
+                    $sections[] = ['key' => $key, 'enabled' => isset($enabledInput[$key])];
+                    $seen[$key] = true;
+                }
+            }
+            foreach (SectionRegistry::modularKeys() as $key) {
+                if (!isset($seen[$key])) {
+                    $sections[] = ['key' => $key, 'enabled' => false];
+                }
+            }
+
+            $repo->setMany(['sections' => (string) json_encode($sections, JSON_UNESCAPED_UNICODE)]);
+            $redirect('sections?ok=1');
+        }
+        $render('sections', [
+            'sections' => SectionRegistry::ordered($repo->all()['sections'] ?? null),
+            'ok' => isset($_GET['ok']),
+        ], 'Sekce a pořadí');
         break;
 
     case 'inquiries':

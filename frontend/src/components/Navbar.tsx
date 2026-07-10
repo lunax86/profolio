@@ -5,15 +5,18 @@ import { useTheme } from '@/lib/theme';
 import type { SiteSettings } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
-const links = [
-    { href: '#sluzby', label: 'Služby' },
-    { href: '#poptavka', label: 'Poptávka' },
-    { href: '#ukazky', label: 'Reference' },
-    { href: '#kontakt', label: 'Kontakt' },
+// section = klíč modulární sekce (skryj odkaz, když je vypnutá); null = vždy (Footer).
+const allLinks: { href: string; label: string; section: string | null }[] = [
+    { href: '#sluzby', label: 'Služby', section: 'services' },
+    { href: '#poptavka', label: 'Poptávka', section: 'inquiry' },
+    { href: '#ukazky', label: 'Reference', section: 'portfolio' },
+    { href: '#instagram', label: 'Instagram', section: 'instagram' },
+    { href: '#kontakt', label: 'Kontakt', section: null },
 ];
 
-export function Navbar({ settings }: { settings: SiteSettings }) {
+export function Navbar({ settings, enabledSections }: { settings: SiteSettings; enabledSections: string[] }) {
     const { theme, toggle } = useTheme();
+    const links = allLinks.filter((link) => link.section === null || enabledSections.includes(link.section));
     const [scrolled, setScrolled] = useState(false);
     const [open, setOpen] = useState(false);
     const headerRef = useRef<HTMLElement>(null);

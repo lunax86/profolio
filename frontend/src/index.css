@@ -52,4 +52,10 @@
     html {
         scroll-behavior: smooth;
     }
+
+    /* Modulární sekce se přehazují (pořadí z nastavení), proto pruhování řeší pozice,
+       ne fixní pozadí u konkrétní sekce. Hero (první) má vlastní pozadí, proto :not(:first-child). */
+    main > section:not(:first-child):nth-of-type(odd) {
+        background-color: hsl(var(--secondary) / 0.5);
+    }
 }

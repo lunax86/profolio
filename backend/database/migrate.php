@@ -156,6 +156,21 @@ $pdo->prepare("INSERT OR IGNORE INTO site_settings (key, value) VALUES ('privacy
 $pdo->prepare("INSERT OR IGNORE INTO site_settings (key, value) VALUES ('timezone', ?)")
     ->execute(['Europe/Prague']);
 
+// Výchozí barevné téma (shade + accent) - jen pokud ještě není nastaveno.
+foreach (['theme_shade' => 'slate', 'theme_accent' => 'indigo'] as $themeKey => $themeDefault) {
+    $pdo->prepare('INSERT OR IGNORE INTO site_settings (key, value) VALUES (?, ?)')
+        ->execute([$themeKey, $themeDefault]);
+}
+
+// Výchozí pořadí a viditelnost modulárních sekcí (Hero a Footer jsou fixní, mimo seznam).
+$pdo->prepare("INSERT OR IGNORE INTO site_settings (key, value) VALUES ('sections', ?)")
+    ->execute([json_encode([
+        ['key' => 'services', 'enabled' => true],
+        ['key' => 'inquiry', 'enabled' => true],
+        ['key' => 'portfolio', 'enabled' => true],
+        ['key' => 'instagram', 'enabled' => false],
+    ], JSON_UNESCAPED_UNICODE)]);
+
 // Výchozí hodnoty SMTP - jen pokud ještě nejsou nastaveny.
 foreach (['smtp_port' => '587', 'smtp_encryption' => 'tls'] as $smtpKey => $smtpDefault) {
     $pdo->prepare('INSERT OR IGNORE INTO private_settings (key, value) VALUES (?, ?)')

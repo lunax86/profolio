@@ -48,7 +48,7 @@ $maxCount = max(1, ...array_map(static fn ($day): int => (int) $day['count'], $v
 <?= card_close() ?>
 
 <?= card_open('Obsah webu') ?>
-    <p>Obsah upravíte v sekci <a href="/admin/settings">Nastavení</a> (titulek, slogan, kontaktní údaje, úvodní fotka).</p>
+    <p>Obsah upravíte v sekcích <a href="/admin/obecne">Obecné</a> (název, slogan, kontakt), <a href="/admin/hero">Úvod</a>, <a href="/admin/services">Služby</a> nebo <a href="/admin/portfolio">Portfolio</a>.</p>
     <?php if (Config::get('APP_ENV') !== 'production'): ?>
     <p>API dokumentace: <a href="/swagger" target="_blank" rel="noopener">/swagger</a></p>
     <?php endif; ?>
