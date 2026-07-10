@@ -7,6 +7,9 @@ export interface SiteSettings {
     hero_title?: string;
     hero_slogan?: string;
     hero_image?: string;
+    about_title?: string;
+    about_text?: string;
+    about_image?: string;
     footer_tagline?: string;
     contact_email?: string;
     contact_phone?: string;
@@ -24,13 +27,15 @@ export interface SectionConfig {
 }
 
 /** Modulární sekce, které lze v administraci zapnout/vypnout a přeuspořádat. Hero a Footer jsou fixní. */
-export const MODULAR_SECTIONS = ['services', 'inquiry', 'portfolio', 'instagram'] as const;
+export const MODULAR_SECTIONS = ['about', 'portfolio', 'services', 'reviews', 'inquiry', 'instagram'] as const;
 export type ModularSectionKey = (typeof MODULAR_SECTIONS)[number];
 
 const DEFAULT_SECTIONS: SectionConfig[] = [
-    { key: 'services', enabled: true },
-    { key: 'inquiry', enabled: true },
+    { key: 'about', enabled: true },
     { key: 'portfolio', enabled: true },
+    { key: 'services', enabled: true },
+    { key: 'reviews', enabled: true },
+    { key: 'inquiry', enabled: true },
     { key: 'instagram', enabled: false },
 ];
 
@@ -76,6 +81,16 @@ export interface PortfolioItem {
     title: string;
     description: string;
     image_path: string;
+    /** volitelná fotka „před"; když je vyplněná, ukáže se posuvník před/po */
+    image_before?: string;
+    sort_order: number;
+}
+
+export interface Testimonial {
+    id: number;
+    author: string;
+    text: string;
+    role: string;
     sort_order: number;
 }
 
@@ -100,6 +115,7 @@ export const api = {
     settings: () => get<SiteSettings>('/api/settings'),
     services: () => get<Service[]>('/api/services'),
     portfolio: () => get<PortfolioItem[]>('/api/portfolio'),
+    testimonials: () => get<Testimonial[]>('/api/testimonials'),
     /** Anonymní záznam návštěvy - bez čekání na odpověď, chyby ignorujeme. */
     hit: (): void => {
         void fetch('/api/hit', {

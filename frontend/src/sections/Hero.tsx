@@ -47,7 +47,7 @@ export function Hero({ settings }: { settings: SiteSettings }) {
             <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
 
             <div className="container relative z-10 flex flex-col items-center text-center text-white">
-                <h1 className="max-w-3xl animate-fade-up text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl">
+                <h1 className="animate-fade-up text-4xl font-extrabold leading-tight tracking-tight [text-wrap:balance] sm:text-6xl">
                     {settings.hero_title || settings.site_title || 'Kvalitní řešení na míru'}
                 </h1>
                 <p

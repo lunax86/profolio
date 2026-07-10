@@ -19,7 +19,7 @@ export function Instagram({ settings }: { settings: SiteSettings }) {
                     <span className="mt-6 text-sm font-semibold uppercase tracking-wider text-primary">
                         Buďme v kontaktu
                     </span>
-                    <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Sledujte nás na Instagramu</h2>
+                    <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Sledujte mě na Instagramu</h2>
                     <p className="mt-4 text-muted-foreground">
                         Nejnovější fotky, ukázky a zákulisí najdete na našem profilu.
                     </p>

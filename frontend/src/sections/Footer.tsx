@@ -48,7 +48,7 @@ export function Footer({ settings, onOpenPrivacy }: { settings: SiteSettings; on
                 </div>
 
                 <div>
-                    <h4 className="font-semibold">Sledujte nás</h4>
+                    <h4 className="font-semibold">Sledujte mě</h4>
                     <div className="mt-4 flex gap-3">
                         {settings.social_facebook && (
                             <a

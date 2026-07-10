@@ -35,8 +35,8 @@ final class PortfolioRepository
     public function create(array $data): int
     {
         $statement = $this->pdo->prepare(
-            'INSERT INTO portfolio (title, description, image_path, sort_order)
-             VALUES (:title, :description, :image_path, :sort_order)'
+            'INSERT INTO portfolio (title, description, image_path, image_before, sort_order)
+             VALUES (:title, :description, :image_path, :image_before, :sort_order)'
         );
         $statement->execute($this->fields($data));
 
@@ -47,7 +47,7 @@ final class PortfolioRepository
     {
         $statement = $this->pdo->prepare(
             'UPDATE portfolio SET title = :title, description = :description,
-             image_path = :image_path, sort_order = :sort_order WHERE id = :id'
+             image_path = :image_path, image_before = :image_before, sort_order = :sort_order WHERE id = :id'
         );
         $statement->execute([...$this->fields($data), 'id' => $id]);
     }
@@ -64,6 +64,7 @@ final class PortfolioRepository
             'title' => (string) ($data['title'] ?? ''),
             'description' => (string) ($data['description'] ?? ''),
             'image_path' => (string) ($data['image_path'] ?? ''),
+            'image_before' => (string) ($data['image_before'] ?? ''),
             'sort_order' => (int) ($data['sort_order'] ?? 0),
         ];
     }

@@ -11,6 +11,7 @@ use App\Repository\InquiryRepository;
 use App\Repository\PortfolioRepository;
 use App\Repository\ServiceRepository;
 use App\Repository\SettingRepository;
+use App\Repository\TestimonialRepository;
 use App\Repository\VisitRepository;
 use App\Support\Clock;
 use App\Support\RateLimiter;
@@ -53,6 +54,17 @@ final class PublicController
     public function portfolio(Request $request): void
     {
         Response::json((new PortfolioRepository())->all());
+    }
+
+    #[OA\Get(
+        path: '/api/testimonials',
+        summary: 'Recenze zákazníků',
+        tags: ['Veřejné'],
+        responses: [new OA\Response(response: 200, description: 'Pole recenzí')]
+    )]
+    public function testimonials(Request $request): void
+    {
+        Response::json((new TestimonialRepository())->all());
     }
 
     #[OA\Post(

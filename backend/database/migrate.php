@@ -39,11 +39,22 @@ SQL);
 
 $pdo->exec(<<<'SQL'
     CREATE TABLE IF NOT EXISTS portfolio (
-        id          INTEGER PRIMARY KEY AUTOINCREMENT,
-        title       TEXT NOT NULL,
-        description TEXT NOT NULL DEFAULT '',
-        image_path  TEXT NOT NULL,
-        sort_order  INTEGER NOT NULL DEFAULT 0
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        title        TEXT NOT NULL,
+        description  TEXT NOT NULL DEFAULT '',
+        image_path   TEXT NOT NULL,
+        image_before TEXT NOT NULL DEFAULT '',
+        sort_order   INTEGER NOT NULL DEFAULT 0
+    );
+SQL);
+
+$pdo->exec(<<<'SQL'
+    CREATE TABLE IF NOT EXISTS testimonials (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        author     TEXT NOT NULL,
+        text       TEXT NOT NULL DEFAULT '',
+        role       TEXT NOT NULL DEFAULT '',
+        sort_order INTEGER NOT NULL DEFAULT 0
     );
 SQL);
 
@@ -108,6 +119,13 @@ if (!in_array('is_archived', $inquiryColumns, true)) {
     echo "Přidán sloupec inquiries.is_archived.\n";
 }
 
+// Portfolio: volitelná fotka „před" pro posuvník před/po.
+$portfolioColumns = array_column($pdo->query('PRAGMA table_info(portfolio)')->fetchAll(), 'name');
+if (!in_array('image_before', $portfolioColumns, true)) {
+    $pdo->exec("ALTER TABLE portfolio ADD COLUMN image_before TEXT NOT NULL DEFAULT ''");
+    echo "Přidán sloupec portfolio.image_before.\n";
+}
+
 // Role admina: is_super (super admin spravuje ostatní účty). Idempotentní.
 $adminColumns = array_column($pdo->query('PRAGMA table_info(admin_users)')->fetchAll(), 'name');
 if (!in_array('is_super', $adminColumns, true)) {
@@ -128,26 +146,30 @@ if (!$hasSuperAdmin) {
 $privacyDefault = <<<'TXT'
 Zásady ochrany osobních údajů
 
-Správce údajů
-Správcem osobních údajů je provozovatel tohoto webu; kontaktní údaje najdete v sekci Kontakt. Doplňte prosím v administraci konkrétní údaje své firmy (název, IČO, sídlo).
+Kdo zpracovává vaše údaje (správce)
+Správcem vašich osobních údajů jsem já jako provozovatel tohoto webu, fyzická osoba podnikající (OSVČ). Kontaktní údaje najdete v sekci Kontakt.
+[ Doplňte v administraci své identifikační údaje: jméno a příjmení, IČO a místo podnikání. ]
 
-Jaké údaje zpracováváme
-Prostřednictvím poptávkového formuláře zpracováváme jméno, e-mail, telefonní číslo a text zprávy, které nám sami zašlete.
+Jaké údaje zpracovávám a odkud
+Zpracovávám jen údaje, které mi sami pošlete přes poptávkový formulář: jméno, e-mail, telefonní číslo a text zprávy.
 
-Účel a právní základ
-Údaje zpracováváme výhradně za účelem vyřízení vaší poptávky. Právním základem je opatření před uzavřením smlouvy, případně náš oprávněný zájem odpovědět na váš dotaz.
+Proč údaje zpracovávám (účel a právní základ)
+Údaje z formuláře používám výhradně k vyřízení vaší poptávky a k odpovědi na váš dotaz. Právním základem je jednání o možné spolupráci na vaši žádost a můj oprávněný zájem vám odpovědět.
 
-Doba uchování
-Údaje uchováváme po dobu nezbytnou k vyřízení poptávky a navazující komunikace.
+Jak dlouho údaje uchovávám
+Údaje uchovávám po dobu nezbytnou k vyřízení poptávky a navazující komunikace. Pokud z poptávky nevznikne spolupráce, údaje bez zbytečného odkladu smažu.
 
-Předání třetím stranám
-Vaše údaje nepředáváme třetím stranám ani je nevyužíváme k marketingu.
+Kdo se k údajům dostane
+Vaše údaje nepředávám třetím stranám za účelem marketingu. Web běží u poskytovatele hostingu, který může mít k datům přístup jako zpracovatel, výhradně za účelem provozu webu.
 
-Cookies a analytika
-Web nepoužívá marketingové ani sledovací cookies a návštěvnost měříme pouze anonymně.
+Cookies a sledování
+Web nepoužívá marketingové ani sledovací cookies. Návštěvnost měřím jen anonymně, bez ukládání čitelné IP adresy a bez identifikace konkrétní osoby.
+
+Automatizované rozhodování
+Na základě vašich údajů neprobíhá žádné automatizované rozhodování ani profilování.
 
 Vaše práva
-Máte právo na přístup ke svým údajům, jejich opravu či vymazání, omezení zpracování a vznést námitku. Pro uplatnění práv nás kontaktujte na e-mailu uvedeném v sekci Kontakt.
+Máte právo na přístup ke svým údajům, na jejich opravu, vymazání nebo omezení zpracování, právo vznést námitku a právo na přenositelnost údajů. Pro uplatnění mě kontaktujte na e-mailu uvedeném v sekci Kontakt.
 TXT;
 $pdo->prepare("INSERT OR IGNORE INTO site_settings (key, value) VALUES ('privacy_policy', ?)")
     ->execute([$privacyDefault]);
@@ -165,9 +187,11 @@ foreach (['theme_shade' => 'slate', 'theme_accent' => 'indigo'] as $themeKey => 
 // Výchozí pořadí a viditelnost modulárních sekcí (Hero a Footer jsou fixní, mimo seznam).
 $pdo->prepare("INSERT OR IGNORE INTO site_settings (key, value) VALUES ('sections', ?)")
     ->execute([json_encode([
-        ['key' => 'services', 'enabled' => true],
-        ['key' => 'inquiry', 'enabled' => true],
+        ['key' => 'about', 'enabled' => true],
         ['key' => 'portfolio', 'enabled' => true],
+        ['key' => 'services', 'enabled' => true],
+        ['key' => 'reviews', 'enabled' => true],
+        ['key' => 'inquiry', 'enabled' => true],
         ['key' => 'instagram', 'enabled' => false],
     ], JSON_UNESCAPED_UNICODE)]);
 

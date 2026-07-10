@@ -51,7 +51,7 @@ export function InquiryForm({ onOpenPrivacy }: { onOpenPrivacy: () => void }) {
                     <span className="text-sm font-semibold uppercase tracking-wider text-primary">Máte zájem?</span>
                     <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Nezávazná poptávka</h2>
                     <p className="mt-4 text-muted-foreground">
-                        Napište nám, co potřebujete. Ozveme se vám zpravidla do 24 hodin s návrhem řešení. Poptávka je
+                        Napište mi, co potřebujete. Ozvu se vám zpravidla do 24 hodin s návrhem řešení. Poptávka je
                         zdarma a nezávazná.
                     </p>
                     <ul className="mt-8 space-y-3 text-sm">
@@ -68,8 +68,8 @@ export function InquiryForm({ onOpenPrivacy }: { onOpenPrivacy: () => void }) {
                     {sent ? (
                         <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
                             <Icon name="party-popper" className="h-12 w-12 text-primary" />
-                            <h3 className="text-xl font-semibold">Děkujeme!</h3>
-                            <p className="text-muted-foreground">Vaši poptávku jsme přijali a brzy se ozveme.</p>
+                            <h3 className="text-xl font-semibold">Děkuji!</h3>
+                            <p className="text-muted-foreground">Vaši poptávku mám a brzy se ozvu.</p>
                             <Button variant="outline" onClick={() => setSent(false)}>
                                 Odeslat další
                             </Button>

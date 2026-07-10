@@ -108,6 +108,7 @@ $guard = [Auth::apiMiddleware()];
 $router->get('/api/settings', [$public, 'settings']);
 $router->get('/api/services', [$public, 'services']);
 $router->get('/api/portfolio', [$public, 'portfolio']);
+$router->get('/api/testimonials', [$public, 'testimonials']);
 $router->post('/api/inquiries', [$public, 'createInquiry']);
 $router->post('/api/hit', [$public, 'hit']);
 $router->post('/api/auth/login', [$auth, 'login']);

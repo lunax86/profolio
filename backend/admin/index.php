@@ -10,6 +10,7 @@ use App\Repository\PortfolioRepository;
 use App\Repository\PrivateSettingRepository;
 use App\Repository\ServiceRepository;
 use App\Repository\SettingRepository;
+use App\Repository\TestimonialRepository;
 use App\Repository\VisitRepository;
 use App\Support\Auth;
 use App\Support\Csrf;
@@ -125,11 +126,35 @@ switch ($action) {
                 if (!empty($_FILES['image']['tmp_name'])) {
                     $imagePath = Uploader::store($_FILES['image']);
                 }
-                $repo->create(['title' => $post('title'), 'description' => $post('description'), 'image_path' => $imagePath ?: $post('image_url'), 'sort_order' => (int) $post('sort_order', 0)]);
+                $imageBefore = '';
+                if (!empty($_FILES['image_before']['tmp_name'])) {
+                    $imageBefore = Uploader::store($_FILES['image_before']);
+                }
+                $repo->create([
+                    'title' => $post('title'),
+                    'description' => $post('description'),
+                    'image_path' => $imagePath ?: $post('image_url'),
+                    'image_before' => $imageBefore ?: $post('image_before_url'),
+                    'sort_order' => (int) $post('sort_order', 0),
+                ]);
             }
             $redirect('portfolio');
         }
-        $render('portfolio', ['items' => $repo->all()], 'Portfolio');
+        $render('portfolio', ['items' => $repo->all()], 'Ukázky');
+        break;
+
+    case 'reviews':
+        $repo = new TestimonialRepository();
+        if ($method === 'POST') {
+            $verifyCsrf();
+            if ($post('_action') === 'delete') {
+                $repo->delete((int) $post('id'));
+            } else {
+                $repo->create(['author' => $post('author'), 'text' => $post('text'), 'role' => $post('role'), 'sort_order' => (int) $post('sort_order', 0)]);
+            }
+            $redirect('reviews');
+        }
+        $render('reviews', ['items' => $repo->all()], 'Recenze');
         break;
 
     case 'obecne':
@@ -160,6 +185,16 @@ switch ($action) {
             $redirect('hero?ok=1');
         }
         $render('hero', ['settings' => $repo->all(), 'ok' => isset($_GET['ok'])], 'Úvod');
+        break;
+
+    case 'about':
+        $repo = new SettingRepository();
+        if ($method === 'POST') {
+            $verifyCsrf();
+            $repo->setMany(array_intersect_key($_POST, array_flip(['about_title', 'about_text', 'about_image'])));
+            $redirect('about?ok=1');
+        }
+        $render('about', ['settings' => $repo->all(), 'ok' => isset($_GET['ok'])], 'O mně');
         break;
 
     case 'paticka':

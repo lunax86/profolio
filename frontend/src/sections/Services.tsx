@@ -7,10 +7,10 @@ export function Services({ services }: { services: Service[] }) {
         <section id="sluzby" className="py-24">
             <div className="container">
                 <div className="mx-auto max-w-2xl text-center">
-                    <span className="text-sm font-semibold uppercase tracking-wider text-primary">Co nabízíme</span>
-                    <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Naše služby</h2>
+                    <span className="text-sm font-semibold uppercase tracking-wider text-primary">Co nabízím</span>
+                    <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Moje služby</h2>
                     <p className="mt-4 text-muted-foreground">
-                        Postaráme se o celý proces od prvního nápadu až po finální předání.
+                        Postarám se o celý proces od prvního nápadu až po předání.
                     </p>
                 </div>
 
