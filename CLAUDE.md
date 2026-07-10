@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Přehled
 
-Jednostránkový firemní web. Dvě samostatné aplikace, které spolu mluví přes REST API:
+Konfigurovatelný jednostránkový web pro OSVČ/živnostníky (šablona; primárně jeden člověk nabízející služby). Sekce jsou modulární (zapnout/vypnout, přeuspořádat) a barevné téma se mění v administraci. Dvě samostatné aplikace, které spolu mluví přes REST API:
 
 - **`backend/`** - PHP 8.2 (OOP), SQLite. Poskytuje veřejné REST API, server-rendered administraci a OpenAPI/Swagger dokumentaci. Bez frameworku - vlastní lehké jádro.
 - **`frontend/`** - React 18 + TypeScript (Vite), Tailwind + shadcn-style komponenty. Veřejný one-page web s parallaxem a dark/light režimem.
@@ -39,24 +39,28 @@ Pro plný běh musí backend běžet na `:8000` (viz proxy v `vite.config.ts`). 
 
 ## Architektura backendu
 
-Front controller **`public/index.php`** je jediný vstupní bod. V pořadí řeší: CORS → statické `/uploads/*` → `/admin*` (deleguje na `admin/index.php`) → `/swagger` + `/api/openapi.json` (**jen mimo produkci**, `APP_ENV != production`) → `/robots.txt` + `/sitemap.xml` → **cesty mimo `/api`** = SPA stránka (vrátí `frontend/dist/index.html` se SEO meta vloženými přes `Support\SeoRenderer`) → jinak REST routy přes `Core\Router` (`/api/*`).
+Front controller **`public/index.php`** je jediný vstupní bod. V pořadí řeší: CORS → statické `/uploads/*` → `/admin*` (deleguje na `admin/index.php`) → `/swagger` + `/api/openapi.json` (**jen mimo produkci**, `APP_ENV != production`) → `/robots.txt` + `/sitemap.xml` → **cesty mimo `/api`** = SPA stránka (vrátí `frontend/dist/index.html`; do `<head>` se serverově vloží SEO meta přes `Support\SeoRenderer` a barevné téma přes `Support\ThemeRenderer`) → jinak REST routy přes `Core\Router` (`/api/*`).
 
 - **`src/Core/`** - jádro: `Router` (regex cesty s `{param}` + middleware), `Request`/`Response`, `Database` (PDO/SQLite singleton), `Config` (čte `.env` přes phpdotenv).
 - **`src/Repository/`** - jediná vrstva přístupu k DB (PDO, prepared statements). Kontrolery ani admin nesmí sahat na PDO přímo, jdou přes repozitáře.
 - **`src/Controller/Api/`** - REST kontrolery. **OpenAPI atributy (`#[OA\...]`) na metodách jsou zdroj pravdy pro Swagger** - každá operace musí mít alespoň jednu `OA\Response`, jinak `swagger-php` scan spadne. `/api/openapi.json` scanuje složku `src/Controller`.
-- **`src/Support/`** - `Jwt` (vlastní HS256, žádná externí lib - firebase/php-jwt bylo odstraněno kvůli security advisory), `Auth` (JWT middleware pro API + session pro admin UI), `Validator`, `Csrf`, `Uploader`, **`RateLimiter`** (souborový, klouzavé okno - anti-spam formuláře + brute-force ochrana loginu), **`SeoRenderer`** (vkládá title/description/OG/Twitter/JSON-LD do HTML shellu z nastavení), **`Clock`** (časová zóna webu z nastavení `timezone`, fallback `Europe/Prague`).
+- **`src/Support/`** - `Jwt` (vlastní HS256, žádná externí lib - firebase/php-jwt bylo odstraněno kvůli security advisory), `Auth` (JWT middleware pro API + session pro admin UI), `Validator`, `Csrf`, `Uploader`, **`RateLimiter`** (souborový, klouzavé okno - anti-spam formuláře + brute-force ochrana loginu), **`SeoRenderer`** (vkládá title/description/OG/Twitter/JSON-LD do HTML shellu z nastavení), **`ThemeRegistry`**/**`ThemeRenderer`** (barevné téma - shade/accent → CSS proměnné do `<head>`), **`SectionRegistry`** (registr modulárních sekcí), **`Clock`** (časová zóna webu z nastavení `timezone`, fallback `Europe/Prague`).
 - **`admin/`** - server-rendered administrace. `admin/index.php` je akční router (`/admin/{action}`) se session auth a CSRF; šablony v `admin/views/`, layout v `admin/layout/`.
 
 **Autorizace má dvě cesty:** admin API endpointy chrání `Auth::apiMiddleware()` (Bearer JWT); admin UI používá PHP session (`Auth::login/check`) + CSRF token v každém formuláři.
 
 ## Klíčové funkce a kde jsou
 
-Obsah spravuje administrace přes tabulku `site_settings` (**key/value**); `GET /api/settings` vrací **všechny** klíče, takže nové nastavení (`seo_title`, `privacy_policy`, `favicon_path`, …) je hned dostupné frontendu i `SeoRenderer` bez zásahu do API.
+Obsah spravuje administrace přes tabulku `site_settings` (**key/value**); `GET /api/settings` vrací **všechny** klíče, takže nové nastavení (`slogan`, `theme_shade`/`theme_accent`, `sections`, `about_text`, `seo_title`, …) je hned dostupné frontendu i rendererům bez zásahu do API. Seznamové entity (služby, ukázky, recenze) mají vlastní tabulky a repozitáře.
 
+- **Sekce webu (modulární)**: prostřední sekce (`about`, `portfolio`, `services`, `reviews`, `inquiry`, `instagram`) lze zapnout/vypnout a přeuspořádat. Zdroj pravdy je klíč `sections` (JSON) v `site_settings`; PHP `Support\SectionRegistry` + admin „Sekce a pořadí", frontend `parseSections`/`MODULAR_SECTIONS` a `App.tsx` je vykreslí. **Hero a Patička jsou fixní** (vždy). Nová sekce chybějící v uloženém `sections` se doplní vypnutá na konec (forward-compat).
+- **Barevné téma**: neutrální „shade" (`slate`/`stone`/`zinc`) + „accent" (výchozí `indigo`). Hodnoty drží `Support\ThemeRegistry`, volba je v `site_settings` (`theme_shade`/`theme_accent`) a `Support\ThemeRenderer` vloží CSS proměnné na konec `<head>` (přepíše `index.css`, bez probliknutí). Admin „Vzhled". `index.css` je jen fallback (dev, kde ThemeRenderer neběží).
+- **Dědičnost obsahu**: obecný `slogan` (stránka Obecné) je základ pro hero podnadpis, patičku (`footer_tagline`) i SEO popis; `about_title`/`hero_title` dědí `site_title`. Prázdné pole = zdědí se (placeholder ukazuje zděděnou hodnotu, stejný vzor jako SEO pole).
+- **Obsahové moduly**: „O mně" (`about_*` v `site_settings`; portrét nebo neutrální silueta), **Ukázky** (`portfolio`; volitelný sloupec `image_before` → frontend `BeforeAfter` ukáže posuvník před/po, jinak jedna fotka), **Recenze** (`testimonials`, `TestimonialRepository`; admin CRUD s upozorněním, že recenze musí být pravé - Omnibus/GDPR), **Instagram** (jen odkaz z `social_instagram`).
 - **Poptávky** (`inquiries`): anti-spam v `PublicController::createInquiry` (honeypot `website` + time-trap `elapsed` + IP rate-limit). Sloupec `is_archived` → v adminu přepínač Aktivní/Archiv; smazat lze **jen** archivované (`InquiryRepository::deleteArchived`).
 - **Návštěvnost** (`visits`, `VisitRepository`): `POST /api/hit` zapíše jeden řádek na přístup (bez cookies, IP se neukládá čitelně) - denně rotující solený hash návštěvníka + odvozené štítky (zdroj/zařízení/prohlížeč/OS/jazyk přes `Support\UserAgent`, jen štítky, ne syrový UA). Dashboard ukazuje unikáty za den, sekce **Návštěvnost** (`admin/views/traffic.php`) rozpady a poslední přístupy. Frontend (`api.hit`) posílá jen `ref` (document.referrer); web je jednostránkový, takže se cesta neřeší.
 - **SEO**: `SeoRenderer` + nastavení `seo_title`/`seo_description`/`seo_image`/`seo_index` (přepínač indexování ovládá i `robots.txt`).
-- **GDPR**: `privacy_policy` (editovatelný text v Nastavení) → modál na frontendu + info u formuláře.
+- **GDPR**: `privacy_policy` (editovatelný text na stránce GDPR) → modál na frontendu + info u formuláře.
 - **Login**: rate-limit (`RateLimiter::tooMany`/`record`, 5 neúspěchů / 15 min na IP).
 - **Admin účty** (`admin_users`, sekce Účet): dvě role přes sloupec `is_super`. Super admin (účet ze seedu, nelze smazat) spravuje ostatní; běžný admin mění jen svoje heslo/e-mail. Každý mění svůj účet po zadání současného hesla. Migrace povýší nejstarší účet na super admina, když žádný není.
 - **Časy**: v DB se ukládají v UTC (`datetime('now')`). Zobrazení (admin views) i výpočet „dne" pro návštěvnost jdou přes `Support\Clock`, který respektuje nastavení `timezone` (default `Europe/Prague`). Nezobrazovat `created_at` syrově, vždy přes `Clock::formatUtc()`.
@@ -65,15 +69,15 @@ Migrace (`database/migrate.php`) je **idempotentní** - nové sloupce se přidá
 
 ## Architektura frontendu
 
-- **`src/lib/api.ts`** - typovaný API klient a všechny doménové typy (`SiteSettings`, `Service`, `PortfolioItem`). Jediné místo, kde se volá `fetch`.
+- **`src/lib/api.ts`** - typovaný API klient a všechny doménové typy (`SiteSettings`, `Service`, `PortfolioItem`, `Testimonial`) + `MODULAR_SECTIONS`/`parseSections` (pořadí a viditelnost sekcí). Jediné místo, kde se volá `fetch`.
 - **`src/lib/theme.tsx`** - `ThemeProvider` přepíná třídu `.dark` na `<html>` (Tailwind `darkMode: 'class'`), ukládá do localStorage.
 - **`src/components/ui/`** - shadcn-style primitiva (Button, Card, Input, Textarea) postavená na `cn()` z `lib/utils.ts` a CSS proměnných z `index.css`.
 - **`src/components/Icon.tsx`** - všechny ikony jdou přes tenhle obal (`@iconify/react` + sada `lucide`). Nepoužívat jiné ikony přímo.
-- **`src/sections/`** - jednotlivé sekce one-page webu (Hero, Services, InquiryForm, Portfolio, Footer). `App.tsx` je načte jedním `Promise.all` a předá dolů.
+- **`src/sections/`** - jednotlivé sekce one-page webu (Hero, About, Portfolio, Services, Reviews, InquiryForm, Instagram, Footer) + `components/BeforeAfter.tsx` (posuvník před/po). `App.tsx` načte data jedním `Promise.all` a **prostřední sekce vykreslí podle `settings.sections`** (pořadí + viditelnost); Hero a Footer jsou fixní.
 - **`src/components/PrivacyModal.tsx`** - lehký modál se zásadami GDPR (text z `settings.privacy_policy`), otevírá se z patičky i od formuláře.
 - `App.tsx` navíc jednou za relaci pingne `POST /api/hit` (návštěvnost). `InquiryForm` má skryté honeypot pole `website` a měří čas od načtení (`elapsed`) - obojí kvůli anti-spamu.
 
-Barvy jsou HSL CSS proměnné v `index.css` (light + `.dark` blok), mapované v `tailwind.config.js`. Nová barva = přidat proměnnou i mapování.
+Barvy jsou HSL CSS proměnné (light + `.dark` blok), mapované v `tailwind.config.js`. V produkci ale konkrétní hodnoty **injektuje `ThemeRenderer`** podle zvoleného shade/accent (viz Klíčové funkce); `index.css` drží jen výchozí/fallback sadu (dev, kde ThemeRenderer neběží). Novou variantu palety = přidat do `Support\ThemeRegistry`.
 
 ## Konvence
 

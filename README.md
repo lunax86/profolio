@@ -1,9 +1,11 @@
-# Firemní web
+# Profolio
 
-Jednostránkový firemní web s parallaxem, dark/light režimem, poptávkovým formulářem
-a serverovou administrací. Dvě samostatné aplikace komunikující přes REST API:
+Konfigurovatelný jednostránkový web pro OSVČ a živnostníky: „O mně", ukázky práce
+s posuvníkem před/po, služby, reference, poptávkový formulář, parallax a dark/light režim.
+Sekce jsou modulární (zapnout/vypnout, přeuspořádat) a barevné téma se mění v administraci.
+Dvě samostatné aplikace komunikující přes REST API:
 
-- **backend/** - PHP 8.2 (OOP), SQLite: REST API + administrace + Swagger
+- **backend/** - PHP 8.2 (OOP), SQLite: REST API + serverová administrace
 - **frontend/** - React + TypeScript (Vite), Tailwind + shadcn styl, ikony lucide
 
 Jak projekt rozjet lokálně najdeš v [DEVELOPMENT.md](./DEVELOPMENT.md).
@@ -20,7 +22,7 @@ profolio/
 └── frontend/         # React (Vite + TS): veřejný one-page web
     └── src/
         ├── components/   # + ui/ (shadcn-style primitiva)
-        ├── sections/     # Hero, Services, InquiryForm, Portfolio, Footer
+        ├── sections/     # Hero, About, Portfolio (před/po), Services, Reviews, InquiryForm, Instagram, Footer
         └── lib/          # API klient, theme
 ```
 
@@ -44,7 +46,14 @@ Obsah webu se edituje v administraci (`/admin`), ne v kódu:
 
 | Chci změnit | Kde v administraci |
 |---|---|
-| Titulek, slogan, úvodní fotku, kontakt | Nastavení |
+| Název, slogan, kontakt, favicon, časovou zónu | Obecné |
+| Úvodní sekci (hero) | Úvod |
+| Medailonek „O mně" | O mně |
+| Ukázky práce (fotky, před/po) | Ukázky |
 | Služby (karty) | Služby |
-| Ukázky práce (fotky) | Portfolio |
+| Reference (recenze) | Recenze |
+| Patičku a sociální sítě | Patička |
+| Barvy webu | Vzhled |
+| Viditelnost a pořadí sekcí | Sekce a pořadí |
+| SEO / zásady ochrany údajů (GDPR) | SEO / GDPR |
 | Přijaté poptávky | Poptávky |
