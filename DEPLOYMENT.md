@@ -236,15 +236,25 @@ sudo systemctl reload php8.2-fpm
 
 ## 9. Po nasazení v administraci
 
-Přihlas se na `https://example.com/admin` (údaje z `.env`) a nastav:
+Přihlas se na `https://example.com/admin` (údaje z `.env`) a projdi jednotlivé stránky:
 
-- **Nastavení** - název, slogan, kontakt, úvodní fotka, sociální sítě
+- **Obecné** - název, slogan (dědí ho úvod, patička i SEO), kontakt, favicon, časová zóna
+- **Úvod** - hlavní titulek, podnadpis a úvodní fotka (hero)
+- **O mně** - medailonek (text + portrét; bez fotky se ukáže neutrální silueta)
+- **Ukázky** - fotky práce; volitelná fotka „před" zapne posuvník před/po
+- **Služby** - karty služeb
+- **Recenze** - reference zákazníků (jen skutečné - viz upozornění přímo v adminu)
+- **Patička** - text patičky a odkazy na sociální sítě
+- **Vzhled** - barevné schéma (shade + accent)
+- **Sekce a pořadí** - které sekce se zobrazí a v jakém pořadí
 - **SEO** - SEO titulek/popis, obrázek pro sdílení, přepínač **Indexování** (na testovacím
   webu klidně „Ne", na ostrém „Ano")
-- **Ikona webu (favicon)** - nahraj vlastní PNG (jinak zůstane výchozí)
-- **Zásady ochrany osobních údajů (GDPR)** - uprav text a doplň údaje firmy (IČO, sídlo)
-- **Služby**, **Portfolio** - obsah webu
+- **GDPR** - text zásad ochrany osobních údajů; doplň své údaje (jméno, IČO, místo podnikání)
 - **Účet** - změna hesla/e-mailu; správce webu (super admin) může přidat další účty
+
+> **Upgrade stávajícího webu:** nové sekce (např. O mně, Recenze) se po redeployi objeví
+> v **Sekce a pořadí** vypnuté na konci - zapni je a přetáhni na správné místo. Na čerstvé
+> instalaci jsou rovnou v pořadí a zapnuté.
 
 > **Super admin:** při upgradu stávajícího webu `migrate.php` povýší nejstarší účet na
 > super admina (spravuje ostatní účty, nelze ho smazat). Nového super admina nelze
