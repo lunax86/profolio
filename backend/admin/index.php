@@ -181,27 +181,26 @@ switch ($action) {
         $repo = new SettingRepository();
         if ($method === 'POST') {
             $verifyCsrf();
-            $repo->setMany(array_intersect_key($_POST, array_flip(['hero_title', 'hero_slogan', 'hero_image'])));
+            $repo->setMany(array_intersect_key($_POST, array_flip(['hero_title', 'hero_place', 'hero_about', 'hero_image'])));
             $redirect('hero?ok=1');
         }
         $render('hero', ['settings' => $repo->all(), 'ok' => isset($_GET['ok'])], 'Úvod');
-        break;
-
-    case 'about':
-        $repo = new SettingRepository();
-        if ($method === 'POST') {
-            $verifyCsrf();
-            $repo->setMany(array_intersect_key($_POST, array_flip(['about_title', 'about_text', 'about_image'])));
-            $redirect('about?ok=1');
-        }
-        $render('about', ['settings' => $repo->all(), 'ok' => isset($_GET['ok'])], 'O mně');
         break;
 
     case 'paticka':
         $repo = new SettingRepository();
         if ($method === 'POST') {
             $verifyCsrf();
-            $repo->setMany(array_intersect_key($_POST, array_flip(['footer_tagline', 'social_facebook', 'social_instagram'])));
+            $repo->setMany(array_intersect_key($_POST, array_flip(['footer_tagline', 'social_facebook', 'social_instagram', 'footer_portrait'])));
+            if ($post('footer_portrait_remove')) {
+                $repo->setMany(['footer_portrait' => '']);
+            } elseif (!empty($_FILES['footer_portrait_file']['tmp_name'])) {
+                try {
+                    $repo->setMany(['footer_portrait' => Uploader::store($_FILES['footer_portrait_file'])]);
+                } catch (\RuntimeException $exception) {
+                    $redirect('paticka?err=' . rawurlencode($exception->getMessage()));
+                }
+            }
             $redirect('paticka?ok=1');
         }
         $render('paticka', ['settings' => $repo->all(), 'ok' => isset($_GET['ok'])], 'Patička');

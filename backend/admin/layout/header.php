@@ -17,7 +17,6 @@ $navigationGroups = [
     ]],
     ['section' => 'Obsah', 'items' => [
         'hero' => ['Úvod', 'panel-top'],
-        'about' => ['O mně', 'id-card'],
         'portfolio' => ['Ukázky', 'image'],
         'services' => ['Služby', 'briefcase'],
         'reviews' => ['Recenze', 'quote'],

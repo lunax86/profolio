@@ -16,8 +16,9 @@ $get = static fn (string $key): string => (string) ($settings[$key] ?? '');
     <?= Csrf::field() ?>
 
     <?= card_open('Úvodní sekce (hero)', 'První, co návštěvník uvidí') ?>
-        <?= field('Hlavní titulek', 'hero_title', ['value' => $get('hero_title'), 'placeholder' => $get('site_title'), 'sub' => '(prázdné = použije se název webu)']) ?>
-        <?= field('Podnadpis', 'hero_slogan', ['value' => $get('hero_slogan'), 'placeholder' => $get('slogan'), 'sub' => '(prázdné = použije se obecný slogan)']) ?>
+        <?= field('Hlavní nadpis (co děláte)', 'hero_title', ['value' => $get('hero_title'), 'placeholder' => 'např. Rekonstrukce bytů na klíč', 'sub' => '(velký nadpis; prázdné = název webu)']) ?>
+        <?= field('Místo (kde působíte)', 'hero_place', ['value' => $get('hero_place'), 'placeholder' => 'např. Praha a okolí', 'sub' => '(nepovinné; pod nadpisem v barvě webu)']) ?>
+        <?= field_wrap('Pár slov o mně', '<textarea name="hero_about" rows="4" placeholder="2-3 věty: kdo jste, jak dlouho, čím se lišíte.">' . escape($get('hero_about')) . '</textarea>', '(zobrazí se vedle nadpisu; prázdné = skryto)') ?>
         <?= field('URL úvodní fotky', 'hero_image', ['type' => 'url', 'value' => $get('hero_image')]) ?>
     <?= card_close() ?>
 

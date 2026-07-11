@@ -14,7 +14,6 @@ final class SectionRegistry
 {
     /** Modulární sekce (key => popisek). Pořadí zde je výchozí. Každá síť má vlastní modul. */
     public const MODULAR = [
-        'about' => 'O mně',
         'portfolio' => 'Ukázky',
         'services' => 'Služby',
         'reviews' => 'Recenze',

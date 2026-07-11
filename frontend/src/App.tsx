@@ -3,7 +3,6 @@ import { Navbar } from './components/Navbar';
 import { Hero } from './sections/Hero';
 import { Services } from './sections/Services';
 import { InquiryForm } from './sections/InquiryForm';
-import { About } from './sections/About';
 import { Portfolio } from './sections/Portfolio';
 import { Instagram } from './sections/Instagram';
 import { Reviews } from './sections/Reviews';
@@ -53,8 +52,6 @@ export default function App() {
                 return <Services key={key} services={services} />;
             case 'inquiry':
                 return <InquiryForm key={key} onOpenPrivacy={() => setPrivacyOpen(true)} />;
-            case 'about':
-                return <About key={key} settings={settings} />;
             case 'portfolio':
                 return <Portfolio key={key} items={portfolio} />;
             case 'reviews':

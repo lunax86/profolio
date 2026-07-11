@@ -9,8 +9,8 @@ use App\Support\Csrf;
 $get = static fn (string $key): string => (string) ($settings[$key] ?? '');
 
 $indexOn = ($settings['seo_index'] ?? '1') !== '0';
-// Obecný slogan je základ pro odvozený popis; fallback na hero_slogan kvůli starším datům.
-$slogan = $get('slogan') !== '' ? $get('slogan') : $get('hero_slogan');
+// Obecný slogan je základ pro odvozený popis; fallback na hlavní text hera.
+$slogan = $get('slogan') !== '' ? $get('slogan') : $get('hero_title');
 $seoTitlePlaceholder = $get('site_title') . ($slogan !== '' ? ' - ' . $slogan : '');
 ?>
 <?php if ($ok): ?>

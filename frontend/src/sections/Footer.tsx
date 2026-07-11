@@ -8,7 +8,16 @@ export function Footer({ settings, onOpenPrivacy }: { settings: SiteSettings; on
         <footer id="kontakt" className="border-t border-border bg-card">
             <div className="container grid gap-10 py-16 sm:grid-cols-2 lg:grid-cols-3">
                 <div>
-                    <h3 className="text-lg font-bold">{settings.site_title ?? 'Vaše firma'}</h3>
+                    <div className="flex items-center gap-3">
+                        {settings.footer_portrait && (
+                            <img
+                                src={settings.footer_portrait}
+                                alt={settings.site_title ?? ''}
+                                className="h-14 w-14 rounded-full border border-border object-cover"
+                            />
+                        )}
+                        <h3 className="text-lg font-bold">{settings.site_title ?? 'Vaše firma'}</h3>
+                    </div>
                     <p className="mt-3 text-sm text-muted-foreground">
                         {settings.footer_tagline ||
                             settings.slogan ||

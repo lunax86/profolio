@@ -187,7 +187,6 @@ foreach (['theme_shade' => 'slate', 'theme_accent' => 'indigo'] as $themeKey => 
 // Výchozí pořadí a viditelnost modulárních sekcí (Hero a Footer jsou fixní, mimo seznam).
 $pdo->prepare("INSERT OR IGNORE INTO site_settings (key, value) VALUES ('sections', ?)")
     ->execute([json_encode([
-        ['key' => 'about', 'enabled' => true],
         ['key' => 'portfolio', 'enabled' => true],
         ['key' => 'services', 'enabled' => true],
         ['key' => 'reviews', 'enabled' => true],

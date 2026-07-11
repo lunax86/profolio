@@ -5,12 +5,11 @@ export interface SiteSettings {
     /** Obecný jednořádkový popis; základ pro hero podnadpis, patičku i SEO. */
     slogan?: string;
     hero_title?: string;
-    hero_slogan?: string;
+    hero_place?: string;
+    hero_about?: string;
     hero_image?: string;
-    about_title?: string;
-    about_text?: string;
-    about_image?: string;
     footer_tagline?: string;
+    footer_portrait?: string;
     contact_email?: string;
     contact_phone?: string;
     contact_address?: string;
@@ -27,11 +26,10 @@ export interface SectionConfig {
 }
 
 /** Modulární sekce, které lze v administraci zapnout/vypnout a přeuspořádat. Hero a Footer jsou fixní. */
-export const MODULAR_SECTIONS = ['about', 'portfolio', 'services', 'reviews', 'inquiry', 'instagram'] as const;
+export const MODULAR_SECTIONS = ['portfolio', 'services', 'reviews', 'inquiry', 'instagram'] as const;
 export type ModularSectionKey = (typeof MODULAR_SECTIONS)[number];
 
 const DEFAULT_SECTIONS: SectionConfig[] = [
-    { key: 'about', enabled: true },
     { key: 'portfolio', enabled: true },
     { key: 'services', enabled: true },
     { key: 'reviews', enabled: true },

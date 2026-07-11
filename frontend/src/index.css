@@ -59,3 +59,11 @@
         background-color: hsl(var(--secondary) / 0.5);
     }
 }
+
+@layer utilities {
+    /* Světlejší accent pro text na tmavém hero fotu - čistý accent je tam málo čitelný.
+       color-mix funguje pro libovolnou zvolenou barvu (theme-aware). */
+    .text-accent-hero {
+        color: color-mix(in srgb, hsl(var(--primary)) 60%, white);
+    }
+}

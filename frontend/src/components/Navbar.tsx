@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 
 // section = klíč modulární sekce (skryj odkaz, když je vypnutá); null = vždy (Footer).
 const allLinks: { href: string; label: string; section: string | null }[] = [
-    { href: '#o-mne', label: 'O mně', section: 'about' },
     { href: '#ukazky', label: 'Ukázky', section: 'portfolio' },
     { href: '#sluzby', label: 'Služby', section: 'services' },
     { href: '#recenze', label: 'Recenze', section: 'reviews' },
