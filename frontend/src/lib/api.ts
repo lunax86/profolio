@@ -7,6 +7,8 @@ export interface SiteSettings {
     hero_title?: string;
     hero_place?: string;
     hero_about?: string;
+    /** Nenápadný odkaz pod „o mně" v heru: '' | 'portfolio' | 'instagram' (jen když je sekce zapnutá). */
+    hero_link?: string;
     hero_image?: string;
     footer_tagline?: string;
     footer_portrait?: string;

@@ -67,7 +67,7 @@ export default function App() {
         <>
             <Navbar settings={settings} enabledSections={enabledSections} />
             <main>
-                <Hero settings={settings} />
+                <Hero settings={settings} enabledSections={enabledSections} />
                 {enabledSections.map((key) => renderSection(key))}
             </main>
             <Footer settings={settings} onOpenPrivacy={() => setPrivacyOpen(true)} />

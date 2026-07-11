@@ -19,6 +19,11 @@ $get = static fn (string $key): string => (string) ($settings[$key] ?? '');
         <?= field('Hlavní nadpis (co děláte)', 'hero_title', ['value' => $get('hero_title'), 'placeholder' => 'např. Rekonstrukce bytů na klíč', 'sub' => '(velký nadpis; prázdné = název webu)']) ?>
         <?= field('Místo (kde působíte)', 'hero_place', ['value' => $get('hero_place'), 'placeholder' => 'např. Praha a okolí', 'sub' => '(nepovinné; pod nadpisem v barvě webu)']) ?>
         <?= field_wrap('Pár slov o mně', '<textarea name="hero_about" rows="4" placeholder="2-3 věty: kdo jste, jak dlouho, čím se lišíte.">' . escape($get('hero_about')) . '</textarea>', '(zobrazí se vedle nadpisu; prázdné = skryto)') ?>
+        <?= field_wrap('Odkaz pod „o mně"', '<select name="hero_link">'
+            . '<option value=""' . ($get('hero_link') === '' ? ' selected' : '') . '>— žádný —</option>'
+            . '<option value="portfolio"' . ($get('hero_link') === 'portfolio' ? ' selected' : '') . '>Ukázky mojí práce</option>'
+            . '<option value="instagram"' . ($get('hero_link') === 'instagram' ? ' selected' : '') . '>Můj Instagram</option>'
+            . '</select>', '(nenápadný odkaz; zobrazí se jen když je zvolená sekce zapnutá)') ?>
         <?= field('URL úvodní fotky', 'hero_image', ['type' => 'url', 'value' => $get('hero_image')]) ?>
     <?= card_close() ?>
 

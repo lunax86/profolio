@@ -181,7 +181,7 @@ switch ($action) {
         $repo = new SettingRepository();
         if ($method === 'POST') {
             $verifyCsrf();
-            $repo->setMany(array_intersect_key($_POST, array_flip(['hero_title', 'hero_place', 'hero_about', 'hero_image'])));
+            $repo->setMany(array_intersect_key($_POST, array_flip(['hero_title', 'hero_place', 'hero_about', 'hero_link', 'hero_image'])));
             $redirect('hero?ok=1');
         }
         $render('hero', ['settings' => $repo->all(), 'ok' => isset($_GET['ok'])], 'Úvod');

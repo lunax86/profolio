@@ -50,11 +50,13 @@ export function Navbar({ settings, enabledSections }: { settings: SiteSettings; 
             )}
         >
             <div className="container flex h-16 items-center justify-between gap-4">
-                <a href="#top" className={cn('text-lg font-bold', !scrolled && 'text-white drop-shadow')}>
-                    {settings.site_title ?? 'Vaše firma'}
-                </a>
+                <div className="flex flex-1 items-center">
+                    <a href="#top" className={cn('text-lg font-bold', !scrolled && 'text-white drop-shadow')}>
+                        {settings.site_title ?? 'Vaše firma'}
+                    </a>
+                </div>
 
-                <nav className="hidden items-center gap-1 md:flex">
+                <nav className="hidden shrink-0 items-center gap-1 md:flex">
                     {links.map((l) => (
                         <a
                             key={l.href}
@@ -69,7 +71,7 @@ export function Navbar({ settings, enabledSections }: { settings: SiteSettings; 
                     ))}
                 </nav>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-1 items-center justify-end gap-2">
                     {settings.contact_phone && (
                         <a
                             href={`tel:${settings.contact_phone.replace(/\s/g, '')}`}
