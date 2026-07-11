@@ -1,6 +1,6 @@
 # Profolio
 
-Konfigurovatelný jednostránkový web pro OSVČ a živnostníky: „O mně", ukázky práce
+Konfigurovatelný jednostránkový web pro OSVČ a živnostníky: osobní úvod, ukázky práce
 s posuvníkem před/po, služby, reference, poptávkový formulář, parallax a dark/light režim.
 Sekce jsou modulární (zapnout/vypnout, přeuspořádat) a barevné téma se mění v administraci.
 Dvě samostatné aplikace komunikující přes REST API:
@@ -22,7 +22,7 @@ profolio/
 └── frontend/         # React (Vite + TS): veřejný one-page web
     └── src/
         ├── components/   # + ui/ (shadcn-style primitiva)
-        ├── sections/     # Hero, About, Portfolio (před/po), Services, Reviews, InquiryForm, Instagram, Footer
+        ├── sections/     # Hero, Portfolio (před/po), Services, Reviews, InquiryForm, Instagram, Footer
         └── lib/          # API klient, theme
 ```
 
@@ -47,8 +47,7 @@ Obsah webu se edituje v administraci (`/admin`), ne v kódu:
 | Chci změnit | Kde v administraci |
 |---|---|
 | Název, slogan, kontakt, favicon, časovou zónu | Obecné |
-| Úvodní sekci (hero) | Úvod |
-| Medailonek „O mně" | O mně |
+| Úvodní sekci: nadpis, místo, „o mně", fotku | Úvod |
 | Ukázky práce (fotky, před/po) | Ukázky |
 | Služby (karty) | Služby |
 | Reference (recenze) | Recenze |
